@@ -30,6 +30,8 @@ export class AuthService {
         const passwordHash = await bcrypt.hash(registerDto.password, this.rounds);
 
         const user = this.usersRepository.create({
+            firstName: registerDto.firstName,
+            lastName: registerDto.lastName,
             email,
             passwordHash
         });
@@ -47,6 +49,8 @@ export class AuthService {
             message: 'User registered successfully',
             user: {
                 id: savedUser.id,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
                 email: savedUser.email,
             },
             ...tokens
@@ -80,6 +84,8 @@ export class AuthService {
             message: 'User logged in successfully',
             user: {
                 id: existingUser.id,
+                firstName: existingUser.firstName,
+                lastName: existingUser.lastName,
                 email: existingUser.email
             },
             ...tokens
