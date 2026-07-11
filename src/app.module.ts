@@ -18,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       password: 'synapse_sat_password',
       database: 'synapse_sat',
       autoLoadEntities: true,
-      synchronize: true
+      synchronize: false
     }),
     AuthModule
   ],
