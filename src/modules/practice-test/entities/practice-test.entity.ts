@@ -10,7 +10,7 @@ import {
 import { TestType } from '../enums/practice-test.enums';
 import { Module } from './module.entity';
 
-@Entity({ name: 'practice-tests' })
+@Entity({ name: 'practice_tests' })
 export class PracticeTest {
     @PrimaryGeneratedColumn('uuid')
     id: string;

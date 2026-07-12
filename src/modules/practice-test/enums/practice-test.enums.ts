@@ -4,7 +4,7 @@ export enum TestType {
 }
 
 export enum Section {
-    ENGLISH = 'english',
+    READING_WRITING = 'reading_writing',
     MATH = 'math',
 }
 
@@ -19,7 +19,7 @@ export enum Domain {
     CRAFT_AND_STRUCTURE = 'craft_and_structure',
     EXPRESSION_OF_IDEAS = 'expression_of_ideas',
     STANDARD_ENGLISH_CONVENTIONS = 'standard_english_conventions',
-    
+
     ALGEBRA = 'algebra',
     ADVANCED_MATH = 'advanced_math',
     PROBLEM_SOLVING_AND_DATA_ANALYSIS = 'problem_solving_and_data_analysis',

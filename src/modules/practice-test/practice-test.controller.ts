@@ -5,30 +5,30 @@ import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 
 @Controller('practice-test')
 export class PracticeTestController {
-  constructor(private readonly practiceTestService: PracticeTestService) {}
+    constructor(private readonly practiceTestService: PracticeTestService) { }
 
-  @Post()
-  create(@Body() createPracticeTestDto: CreatePracticeTestDto) {
-    return this.practiceTestService.create(createPracticeTestDto);
-  }
+    @Post()
+    create(@Body() createPracticeTestDto: CreatePracticeTestDto) {
+        return this.practiceTestService.create(createPracticeTestDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.practiceTestService.findAll();
-  }
+    @Get()
+    findAll() {
+        return this.practiceTestService.findAll();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.practiceTestService.findOne(+id);
-  }
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.practiceTestService.findOne(+id);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePracticeTestDto: UpdatePracticeTestDto) {
-    return this.practiceTestService.update(+id, updatePracticeTestDto);
-  }
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updatePracticeTestDto: UpdatePracticeTestDto) {
+        return this.practiceTestService.update(+id, updatePracticeTestDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.practiceTestService.remove(+id);
-  }
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.practiceTestService.remove(+id);
+    }
 }
