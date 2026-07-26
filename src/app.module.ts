@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PracticeTestModule } from './modules/practice-test/practice-test.module';
+import { TestAttemptModule } from './modules/test-attempt/test-attempt.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { PracticeTestModule } from './modules/practice-test/practice-test.module
       synchronize: false
     }),
     AuthModule,
-    PracticeTestModule
+    PracticeTestModule,
+    TestAttemptModule
   ],
   controllers: [AppController],
   providers: [AppService],
