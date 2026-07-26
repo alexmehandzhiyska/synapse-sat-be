@@ -18,10 +18,10 @@ export class PracticeTestService {
 
     findAll(): Promise<PracticeTest[]> {
         return this.practiceTestRepository.find({
-            relations: { modules: true },
+            relations: { sections: { modules: true } },
             order: {
                 createdAt: 'ASC',
-                modules: { section: 'ASC', position: 'ASC' },
+                sections: { name: 'ASC', modules: { position: 'ASC' } },
             },
         });
     }

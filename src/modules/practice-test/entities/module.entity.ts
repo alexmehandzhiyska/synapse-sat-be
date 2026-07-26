@@ -8,8 +8,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Section } from '../enums/practice-test.enums';
-import { PracticeTest } from './practice-test.entity';
+import { Section } from './section.entity';
 import { Question } from './question.entity';
 
 @Entity({ name: 'modules' })
@@ -18,18 +17,18 @@ export class Module {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => PracticeTest, (test) => test.modules, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'test_id' })
-    test: PracticeTest;
-
-    @Column({ name: 'test_id', type: 'uuid' })
-    testId: string;
-
-    @Column({ type: 'enum', enum: Section })
+    @ManyToOne(() => Section, (section) => section.modules, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'section_id' })
     section: Section;
+
+    @Column({ name: 'section_id', type: 'uuid' })
+    sectionId: string;
 
     @Column({ type: 'int' })
     position: number; // 1 or 2
+
+    @Column({ name: 'time_limit_minutes', type: 'int', nullable: true })
+    timeLimitMinutes: number | null;
 
     @OneToMany(() => Question, (question) => question.module)
     questions: Question[];

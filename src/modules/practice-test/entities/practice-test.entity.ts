@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 import { TestType } from '../enums/practice-test.enums';
-import { Module } from './module.entity';
+import { Section } from './section.entity';
 
 @Entity({ name: 'practice_tests' })
 export class PracticeTest {
@@ -21,8 +21,8 @@ export class PracticeTest {
     @Column({ type: 'enum', enum: TestType })
     type: TestType;
 
-    @OneToMany(() => Module, (module) => module.test)
-    modules: Module[];
+    @OneToMany(() => Section, (section) => section.test)
+    sections: Section[];
 
     @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
     createdAt: Date;
