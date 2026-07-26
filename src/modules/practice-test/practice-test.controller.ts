@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { PracticeTestService } from './practice-test.service';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('practice-test')
 export class PracticeTestController {
@@ -17,9 +18,10 @@ export class PracticeTestController {
         return this.practiceTestService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.practiceTestService.findOne(+id);
+        return this.practiceTestService.findOne(id);
     }
 
     @Patch(':id')

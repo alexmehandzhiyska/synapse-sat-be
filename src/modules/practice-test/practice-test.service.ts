@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { PracticeTest } from './entities/practice-test.entity';
+import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
 
 @Injectable()
 export class PracticeTestService {
@@ -26,8 +27,25 @@ export class PracticeTestService {
         });
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} practiceTest`;
+    async findOne(id: string) {
+        const test = await this.practiceTestRepository.findOne({
+            where: { id },
+            relations: {
+                sections: { modules: { questions: { answerChoices: true } } },
+            },
+            order: {
+                sections: {
+                    name: 'ASC',
+                    modules: { position: 'ASC', questions: { position: 'ASC' } },
+                },
+            },
+        });
+
+        if (!test) {
+            throw new NotFoundException(`Practice test ${id} not found.`);
+        }
+
+        return toFullPracticeTestResponse(test);
     }
 
     update(id: number, updatePracticeTestDto: UpdatePracticeTestDto) {
