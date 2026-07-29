@@ -1,4 +1,3 @@
-import { resolveModuleTimeLimit } from '../constants/section-time-limits';
 import { AnswerChoice } from '../entities/answer-choice.entity';
 import { Module } from '../entities/module.entity';
 import { PracticeTest } from '../entities/practice-test.entity';
@@ -30,7 +29,6 @@ function toModuleResponse(module: Module, section: Section) {
     return {
         id: module.id,
         position: module.position,
-        timeLimitMinutes: resolveModuleTimeLimit(module),
         questions: module.questions.map(toQuestionResponse),
     };
 }

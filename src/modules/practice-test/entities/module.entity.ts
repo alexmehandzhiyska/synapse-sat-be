@@ -27,9 +27,6 @@ export class Module {
     @Column({ type: 'int' })
     position: number; // 1 or 2
 
-    @Column({ name: 'time_limit_minutes', type: 'int', nullable: true })
-    timeLimitMinutes: number | null;
-
     @OneToMany(() => Question, (question) => question.module)
     questions: Question[];
 }

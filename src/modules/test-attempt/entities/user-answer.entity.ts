@@ -41,9 +41,6 @@ export class UserAnswer {
     @Column({ name: 'selected_answer_choice_id', type: 'uuid', nullable: true })
     selectedAnswerChoiceId: string | null;
 
-    @Column({ name: 'is_flagged', type: 'boolean', default: false })
-    isFlagged: boolean;
-
     @Column({ name: 'answered_at', type: 'timestamptz', nullable: true })
     answeredAt: Date | null;
 
