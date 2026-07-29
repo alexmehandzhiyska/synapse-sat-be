@@ -10,22 +10,22 @@ import {
 
 import { AnswerChoice } from '../../practice-test/entities/answer-choice.entity';
 import { Question } from '../../practice-test/entities/question.entity';
-import { ModuleAttempt } from './module-attempt.entity';
+import { TestAttempt } from './test-attempt.entity';
 
 @Entity({ name: 'user_answers' })
-@Unique(['moduleAttemptId', 'questionId'])
+@Unique(['testAttemptId', 'questionId'])
 export class UserAnswer {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => ModuleAttempt, (moduleAttempt) => moduleAttempt.answers, {
+    @ManyToOne(() => TestAttempt, (testAttempt) => testAttempt.answers, {
         onDelete: 'CASCADE',
     })
-    @JoinColumn({ name: 'module_attempt_id' })
-    moduleAttempt: ModuleAttempt;
+    @JoinColumn({ name: 'test_attempt_id' })
+    testAttempt: TestAttempt;
 
-    @Column({ name: 'module_attempt_id', type: 'uuid' })
-    moduleAttemptId: string;
+    @Column({ name: 'test_attempt_id', type: 'uuid' })
+    testAttemptId: string;
 
     @ManyToOne(() => Question, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'question_id' })
@@ -35,11 +35,11 @@ export class UserAnswer {
     questionId: string;
 
     @ManyToOne(() => AnswerChoice, { onDelete: 'SET NULL', nullable: true })
-    @JoinColumn({ name: 'selected_answer_choice_id' })
-    selectedAnswerChoice: AnswerChoice | null;
+    @JoinColumn({ name: 'selected_choice_id' })
+    selectedChoice: AnswerChoice | null;
 
-    @Column({ name: 'selected_answer_choice_id', type: 'uuid', nullable: true })
-    selectedAnswerChoiceId: string | null;
+    @Column({ name: 'selected_choice_id', type: 'uuid', nullable: true })
+    selectedChoiceId: string | null;
 
     @Column({ name: 'answered_at', type: 'timestamptz', nullable: true })
     answeredAt: Date | null;

@@ -1,6 +1,7 @@
 import {
     Column,
     Entity,
+    Index,
     JoinColumn,
     ManyToOne,
     OneToMany,
@@ -9,12 +10,15 @@ import {
 
 import { User } from '../../auth/entities/user.entity';
 import { PracticeTest } from '../../practice-test/entities/practice-test.entity';
-import { ModuleAttempt } from './module-attempt.entity';
+import { UserAnswer } from './user-answer.entity';
 
-// Deliberately no `status`/`currentModuleId` columns here - both are fully
-// derivable from the child ModuleAttempt rows (see TestAttemptService), so
-// storing them would just be duplicated state to keep in sync on every write.
+
 @Entity({ name: 'test_attempts' })
+// At most one in-progress attempt per user per test
+@Index('UQ_test_attempts_active_user_test', ['userId', 'testId'], {
+    unique: true,
+    where: '"completed_at" IS NULL',
+})
 export class TestAttempt {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -39,6 +43,6 @@ export class TestAttempt {
     @Column({ name: 'completed_at', type: 'timestamptz', nullable: true })
     completedAt: Date | null;
 
-    @OneToMany(() => ModuleAttempt, (moduleAttempt) => moduleAttempt.testAttempt)
-    moduleAttempts: ModuleAttempt[];
+    @OneToMany(() => UserAnswer, (answer) => answer.testAttempt)
+    answers: UserAnswer[];
 }

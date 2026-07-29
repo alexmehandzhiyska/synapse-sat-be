@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SECTION_ORDER } from './constants/practice-test.constants';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { PracticeTest } from './entities/practice-test.entity';
+import { Section } from './entities/section.entity';
 import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
 
 @Injectable()
@@ -17,14 +19,21 @@ export class PracticeTestService {
         return 'This action adds a new practiceTest';
     }
 
-    findAll(): Promise<PracticeTest[]> {
-        return this.practiceTestRepository.find({
+    async findAll(): Promise<PracticeTest[]> {
+        const tests = await this.practiceTestRepository.find({
             relations: { sections: { modules: true } },
             order: {
                 createdAt: 'ASC',
-                sections: { name: 'ASC', modules: { position: 'ASC' } },
+                sections: { modules: { position: 'ASC' } },
             },
         });
+
+        for (const test of tests) {
+            // Sort sections - Reading/writing first, then math
+            this.sortSections(test.sections);
+        }
+
+        return tests;
     }
 
     async findOne(id: string) {
@@ -35,7 +44,6 @@ export class PracticeTestService {
             },
             order: {
                 sections: {
-                    name: 'ASC',
                     modules: { position: 'ASC', questions: { position: 'ASC' } },
                 },
             },
@@ -45,7 +53,14 @@ export class PracticeTestService {
             throw new NotFoundException(`Practice test ${id} not found.`);
         }
 
+        // Sort sections - Reading/writing first, then math
+        this.sortSections(test.sections);
+
         return toFullPracticeTestResponse(test);
+    }
+
+    private sortSections(sections: Section[]): void {
+        sections.sort((a, b) => SECTION_ORDER.indexOf(a.name) - SECTION_ORDER.indexOf(b.name));
     }
 
     update(id: number, updatePracticeTestDto: UpdatePracticeTestDto) {
