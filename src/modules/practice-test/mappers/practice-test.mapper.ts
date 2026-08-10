@@ -18,6 +18,7 @@ function toQuestionResponse(question: Question) {
         position: question.position,
         domain: question.domain,
         difficulty: question.difficulty,
+        passage: question.passage,
         prompt: question.prompt,
         answerChoices: question.answerChoices.map(toAnswerChoiceResponse),
     };

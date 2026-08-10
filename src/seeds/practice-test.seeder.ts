@@ -20,13 +20,26 @@ const SECTION_DIRECTIONS: Record<Section, string> = {
     [Section.MATH]: 'The questions in this section address a number of important math skills. Read each question carefully and choose the best answer. You may use the on-screen calculator provided.',
 };
 
-const modules = [
+type SeedModule = {
+    section: Section;
+    position: number;
+    question: {
+        domain: Domain;
+        passage?: string;
+        prompt: string;
+        difficulty: Difficulty;
+        choices: readonly (readonly [string, string, boolean])[];
+    };
+};
+
+const modules: readonly SeedModule[] = [
     {
         section: Section.READING_WRITING,
         position: 1,
         question: {
             domain: Domain.INFORMATION_AND_IDEAS,
-            prompt: 'Which choice best states the main idea of a passage?',
+            passage: 'Marine biologist Ayana Johnson studies the role of kelp forests in coastal ecosystems. In a recent study, she found that these underwater forests not only shelter a wide range of species but also absorb significant amounts of carbon dioxide from the surrounding water. Johnson argues that protecting kelp forests should therefore be a central goal of climate policy, not merely an afterthought.',
+            prompt: 'Which choice best states the main idea of the text?',
             difficulty: Difficulty.EASY,
             choices: [
                 ['A', "It introduces the passage's central claim.", true],
@@ -41,6 +54,8 @@ const modules = [
         position: 2,
         question: {
             domain: Domain.CRAFT_AND_STRUCTURE,
+            passage:
+                'When the composer first performed the piece, critics were unsure what to make of it. Its structure abandoned the familiar patterns of the era, weaving together folk melodies and dissonant harmonies in a way audiences had never encountered. One reviewer called the approach entirely novel, unlike anything the concert hall had hosted before.',
             prompt:
                 'As used in the text, what does the word "novel" most nearly mean?',
             difficulty: Difficulty.MEDIUM,
@@ -133,6 +148,7 @@ async function seedPracticeTest(): Promise<void> {
                         moduleId: module.id,
                         section: moduleData.section,
                         domain: moduleData.question.domain,
+                        passage: moduleData.question.passage,
                         prompt: moduleData.question.prompt,
                         difficulty: moduleData.question.difficulty,
                         position: 1,

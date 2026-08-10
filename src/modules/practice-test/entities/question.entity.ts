@@ -43,6 +43,9 @@ export class Question {
     @Column({ type: 'enum', enum: Domain })
     domain: Domain;
 
+    @Column({ type: 'text', nullable: true })
+    passage: string | null;
+
     @Column({ type: 'text' })
     prompt: string;
 
