@@ -77,6 +77,15 @@ export class TestAttemptService {
         await this.userAnswerRepository.save(answer);
     }
 
+    async advanceModule(attemptId: string, userId: string) {
+        const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
+
+        testAttempt.currentModuleIndex += 1;
+        await this.testAttemptRepository.save(testAttempt);
+
+        return this.toAttemptResponse(testAttempt);
+    }
+
     async submit(attemptId: string, userId: string) {
         const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
 
@@ -106,6 +115,7 @@ export class TestAttemptService {
             id: testAttempt.id,
             testId: testAttempt.testId,
             status: testAttempt.completedAt ? 'completed' : 'in_progress',
+            currentModuleIndex: testAttempt.currentModuleIndex,
             answers: testAttempt.answers.map((answer) => ({
                 questionId: answer.questionId,
                 selectedChoiceId: answer.selectedChoiceId,

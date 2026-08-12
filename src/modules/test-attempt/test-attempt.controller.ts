@@ -42,6 +42,11 @@ export class TestAttemptController {
         return this.testAttemptService.upsertAnswer(attemptId, questionId, dto, req.user.userId);
     }
 
+    @Post(':attemptId/advance-module')
+    advanceModule(@Param('attemptId') attemptId: string, @Req() req: AuthenticatedRequest) {
+        return this.testAttemptService.advanceModule(attemptId, req.user.userId);
+    }
+
     @Post(':attemptId/submit')
     submit(@Param('attemptId') attemptId: string, @Req() req: AuthenticatedRequest) {
         return this.testAttemptService.submit(attemptId, req.user.userId);

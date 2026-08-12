@@ -43,6 +43,9 @@ export class TestAttempt {
     @Column({ name: 'completed_at', type: 'timestamptz', nullable: true })
     completedAt: Date | null;
 
+    @Column({ name: 'current_module_index', type: 'int', default: 0 })
+    currentModuleIndex: number;
+
     @OneToMany(() => UserAnswer, (answer) => answer.testAttempt)
     answers: UserAnswer[];
 }
