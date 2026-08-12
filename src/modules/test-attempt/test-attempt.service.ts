@@ -27,33 +27,26 @@ export class TestAttemptService {
     }
 
     async startOrResume(testId: string, userId: string) {
-        const existingAttempt = await this.testAttemptRepository.findOne({
-            where: { userId, testId, completedAt: IsNull() },
-            order: { startedAt: 'DESC' },
-        });
-
-        // If attempt is present, return it (resume test)
-        if (existingAttempt) {
-            return this.getOne(existingAttempt.id, userId);
-        }
-
-        // If attempt is present, find test and start it
         const test = await this.practiceTestRepository.findOne({ where: { id: testId } });
 
         if (!test) {
             throw new NotFoundException(`Practice test ${testId} not found.`);
         }
 
-        const testAttempt = await this.testAttemptRepository.save(
-            this.testAttemptRepository.create({
-                userId,
-                testId,
-                startedAt: new Date(),
-                completedAt: null,
-            }),
-        );
+        await this.testAttemptRepository
+            .createQueryBuilder()
+            .insert()
+            .into(TestAttempt)
+            .values({ userId, testId, startedAt: new Date() })
+            .orIgnore()
+            .execute();
 
-        return this.getOne(testAttempt.id, userId);
+        const activeAttempt = await this.testAttemptRepository.findOneOrFail({
+            where: { userId, testId, completedAt: IsNull() },
+            relations: { answers: true },
+        });
+
+        return this.toAttemptResponse(activeAttempt);
     }
 
     async upsertAnswer(
