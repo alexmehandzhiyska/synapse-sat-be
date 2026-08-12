@@ -44,7 +44,13 @@ export class PracticeTestService {
             },
             order: {
                 sections: {
-                    modules: { position: 'ASC', questions: { position: 'ASC' } },
+                    modules: {
+                        position: 'ASC',
+                        questions: {
+                            position: 'ASC',
+                            answerChoices: { label: 'ASC' },
+                        },
+                    },
                 },
             },
         });
