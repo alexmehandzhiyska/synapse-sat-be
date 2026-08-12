@@ -22,7 +22,8 @@
         "migration:generate": "npm run typeorm -- migration:generate ./src/migrations/InitPracticeTest",
         "migration:run": "npm run typeorm -- migration:run",
         "migration:revert": "npm run typeorm -- migration:revert",
-        "seed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts"
+        "seed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts",
+        "reseed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts --force"
     },
     "dependencies": {
         "@nestjs/common": "^10.0.0",
