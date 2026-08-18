@@ -33,7 +33,10 @@ export class AuthService {
             firstName: registerDto.firstName,
             lastName: registerDto.lastName,
             email,
-            passwordHash
+            passwordHash,
+            country: registerDto.country,
+            city: registerDto.city,
+            school: registerDto.school
         });
 
         const savedUser = await this.usersRepository.save(user);
