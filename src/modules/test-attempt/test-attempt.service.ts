@@ -7,6 +7,7 @@ import { PracticeTest } from '../practice-test/entities/practice-test.entity';
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttempt } from './entities/test-attempt.entity';
 import { UserAnswer } from './entities/user-answer.entity';
+import { buildScoreReport, ScoreReport } from './utils/score-test';
 
 @Injectable()
 export class TestAttemptService {
@@ -95,6 +96,17 @@ export class TestAttemptService {
         }
 
         return this.toAttemptResponse(testAttempt);
+    }
+
+    async getScore(attemptId: string, userId: string): Promise<ScoreReport> {
+        const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
+
+        const test = await this.practiceTestRepository.findOneOrFail({
+            where: { id: testAttempt.testId },
+            relations: { sections: { modules: { questions: { answerChoices: true } } } },
+        });
+
+        return buildScoreReport(testAttempt.id, test, testAttempt.answers);
     }
 
     private async getOwnedAttemptOrThrow(attemptId: string, userId: string): Promise<TestAttempt> {
