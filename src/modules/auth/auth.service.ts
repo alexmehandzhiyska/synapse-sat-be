@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtService } from '@nestjs/jwt'
 import { MailService } from '../mail/mail.service';
 
@@ -232,6 +233,33 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedException('Access denied!');
         }
+
+        return {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            country: user.country,
+            city: user.city,
+            school: user.school
+        };
+    }
+
+    async update(userId: string, updateProfileDto: UpdateProfileDto) {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('Access denied!');
+        }
+
+        user.firstName = updateProfileDto.firstName;
+        user.lastName = updateProfileDto.lastName;
+        user.country = updateProfileDto.country;
+        user.city = updateProfileDto.city;
+        user.school = updateProfileDto.school;
+        await this.usersRepository.save(user);
 
         return {
             id: user.id,
