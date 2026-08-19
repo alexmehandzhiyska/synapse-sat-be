@@ -27,6 +27,12 @@ export class User {
     refreshTokenHash: string;
 
     @Column({ nullable: true })
+    resetCodeHash: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    resetCodeExpiresAt: Date | null;
+
+    @Column({ nullable: true })
     country: string;
 
     @Column({ nullable: true })

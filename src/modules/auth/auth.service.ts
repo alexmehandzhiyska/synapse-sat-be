@@ -1,19 +1,27 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtService } from '@nestjs/jwt'
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
     rounds: number = 10;
+    private readonly logger = new Logger(AuthService.name);
+    private readonly RESET_CODE_TTL_MS = 15 * 60 * 1000;
 
     constructor(
         @InjectRepository(User) private readonly usersRepository: Repository<User>,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly mailService: MailService
     ) { }
 
     async register(registerDto: RegisterDto) {
@@ -150,6 +158,87 @@ export class AuthService {
         return {
             success: true,
             message: 'User logged out successfully.'
+        }
+    }
+
+    async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+        const email = forgotPasswordDto.email.trim().toLowerCase();
+
+        const user = await this.usersRepository.findOne({
+            where: { email }
+        });
+
+        if (user) {
+            const code = randomInt(100000, 1000000).toString();
+
+            user.resetCodeHash = await bcrypt.hash(code, this.rounds);
+            user.resetCodeExpiresAt = new Date(Date.now() + this.RESET_CODE_TTL_MS);
+            await this.usersRepository.save(user);
+
+            try {
+                await this.mailService.sendPasswordResetCode(user.email, code);
+            } catch (error) {
+                this.logger.error('Failed to send password reset email', error);
+            }
+        }
+
+        return {
+            success: true,
+            message: 'If that email is registered, a verification code has been sent.'
+        };
+    }
+
+    async verifyResetCode(verifyResetCodeDto: VerifyResetCodeDto) {
+        const email = verifyResetCodeDto.email.trim().toLowerCase();
+
+        const user = await this.usersRepository.findOne({
+            where: { email }
+        });
+
+        await this.assertValidResetCode(user, verifyResetCodeDto.code);
+
+        return {
+            success: true,
+            message: 'Verification code confirmed.'
+        };
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const email = resetPasswordDto.email.trim().toLowerCase();
+
+        const user = await this.usersRepository.findOne({
+            where: { email }
+        });
+
+        await this.assertValidResetCode(user, resetPasswordDto.code);
+
+        user!.passwordHash = await bcrypt.hash(resetPasswordDto.newPassword, this.rounds);
+        user!.resetCodeHash = null;
+        user!.resetCodeExpiresAt = null;
+        user!.refreshTokenHash = null;
+        await this.usersRepository.save(user!);
+
+        return {
+            success: true,
+            message: 'Password reset successfully. Please log in with your new password.'
+        };
+    }
+
+    private async assertValidResetCode(user: User | null, code: string): Promise<void> {
+        const invalidCodeError = new BadRequestException('Invalid or expired verification code.');
+
+        if (!user || !user.resetCodeHash || !user.resetCodeExpiresAt) {
+            throw invalidCodeError;
+        }
+
+        if (user.resetCodeExpiresAt.getTime() < Date.now()) {
+            throw invalidCodeError;
+        }
+
+        const codeIsCorrect = await bcrypt.compare(code, user.resetCodeHash);
+
+        if (!codeIsCorrect) {
+            throw invalidCodeError;
         }
     }
 
