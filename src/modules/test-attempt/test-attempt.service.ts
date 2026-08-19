@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
 
@@ -25,6 +25,37 @@ export class TestAttemptService {
     async getOne(attemptId: string, userId: string) {
         const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
         return this.toAttemptResponse(testAttempt);
+    }
+
+    async getAllCompleted(userId: string) {
+        const completedTests = await this.testAttemptRepository.find({
+            where: { userId, completedAt: Not(IsNull()) },
+            relations: { test: true, answers: true },
+            order: { completedAt: 'DESC' },
+        });
+
+        return Promise.all(
+            completedTests.map(async (testAttempt) => {
+                const test = await this.practiceTestRepository.findOneOrFail({
+                    where: { id: testAttempt.testId },
+                    relations: { sections: { modules: { questions: { answerChoices: true } } } },
+                });
+
+                const scoreReport = buildScoreReport(testAttempt.id, test, testAttempt.answers);
+
+                return {
+                    id: testAttempt.id,
+                    testId: testAttempt.testId,
+                    testTitle: testAttempt.test.title,
+                    completedAt: testAttempt.completedAt,
+                    totalScaled: scoreReport.totalScaled,
+                    sections: scoreReport.sections.map((section) => ({
+                        name: section.name,
+                        scaled: section.scaled,
+                    })),
+                };
+            }),
+        );
     }
 
     async startOrResume(testId: string, userId: string) {

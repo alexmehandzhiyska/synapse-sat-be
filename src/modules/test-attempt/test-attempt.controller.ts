@@ -21,6 +21,11 @@ import { TestAttemptService } from './test-attempt.service';
 export class TestAttemptController {
     constructor(private readonly testAttemptService: TestAttemptService) { }
 
+    @Get()
+    getAllCompleted(@Req() req: AuthenticatedRequest) {
+        return this.testAttemptService.getAllCompleted(req.user.userId);
+    }
+
     @Get(':attemptId')
     getOne(@Param('attemptId') attemptId: string, @Req() req: AuthenticatedRequest) {
         return this.testAttemptService.getOne(attemptId, req.user.userId);
