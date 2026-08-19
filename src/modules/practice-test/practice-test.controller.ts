@@ -19,6 +19,12 @@ export class PracticeTestController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Get('diagnostic')
+    findDiagnostic() {
+        return this.practiceTestService.findDiagnostic();
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.practiceTestService.findOne(id);

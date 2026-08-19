@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { SECTION_ORDER } from './constants/practice-test.constants';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { PracticeTest } from './entities/practice-test.entity';
 import { Section } from './entities/section.entity';
+import { TestType } from './enums/practice-test.enums';
 import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class PracticeTestService {
 
     async findAll(): Promise<PracticeTest[]> {
         const tests = await this.practiceTestRepository.find({
+            where: { type: Not(TestType.DIAGNOSTIC) },
             relations: { sections: { modules: true } },
             order: {
                 createdAt: 'ASC',
@@ -34,6 +36,19 @@ export class PracticeTestService {
         }
 
         return tests;
+    }
+
+    async findDiagnostic(): Promise<PracticeTest> {
+        const test = await this.practiceTestRepository.findOne({
+            where: { type: TestType.DIAGNOSTIC },
+            order: { createdAt: 'DESC' },
+        });
+
+        if (!test) {
+            throw new NotFoundException('No diagnostic test is available.');
+        }
+
+        return test;
     }
 
     async findOne(id: string) {
