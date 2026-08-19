@@ -3,7 +3,7 @@ import { Module } from '../../practice-test/entities/module.entity';
 import { PracticeTest } from '../../practice-test/entities/practice-test.entity';
 import { Question } from '../../practice-test/entities/question.entity';
 import { Section as SectionEntity } from '../../practice-test/entities/section.entity';
-import { Domain, Section } from '../../practice-test/enums/practice-test.enums';
+import { Domain, Section, TestType } from '../../practice-test/enums/practice-test.enums';
 
 type QuestionStatus = 'correct' | 'incorrect' | 'omitted';
 
@@ -43,6 +43,7 @@ interface SectionScore {
 
 export interface ScoreReport {
     attemptId: string;
+    isDiagnostic: boolean;
     totalRaw: number;
     totalScaled: number;
     sections: SectionScore[];
@@ -145,5 +146,11 @@ export function buildScoreReport(
     const totalRaw = sections.reduce((sum, section) => sum + section.raw, 0);
     const totalScaled = sections.reduce((sum, section) => sum + section.scaled, 0);
 
-    return { attemptId, totalRaw, totalScaled, sections };
+    return {
+        attemptId,
+        isDiagnostic: test.type === TestType.DIAGNOSTIC,
+        totalRaw,
+        totalScaled,
+        sections,
+    };
 }
