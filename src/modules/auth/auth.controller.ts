@@ -23,16 +23,6 @@ export class AuthController {
         return this.authService.login(loginDto);
     }
 
-    @Post('refresh')
-    refresh(@Body() body: { refreshToken: string }) {
-        return this.authService.refresh(body.refreshToken);
-    }
-
-    @Post('logout')
-    logout(@Body() body: { refreshToken: string }) {
-        return this.authService.logout(body.refreshToken);
-    }
-
     @Post('forgot-password')
     forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
         return this.authService.forgotPassword(forgotPasswordDto);

@@ -24,9 +24,6 @@ export class User {
     passwordHash: string;
 
     @Column({ nullable: true })
-    refreshTokenHash: string;
-
-    @Column({ nullable: true })
     resetCodeHash: string;
 
     @Column({ type: 'timestamp', nullable: true })
