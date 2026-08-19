@@ -224,6 +224,26 @@ export class AuthService {
         };
     }
 
+    async getOne(userId: string) {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('Access denied!');
+        }
+
+        return {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            country: user.country,
+            city: user.city,
+            school: user.school
+        };
+    }
+
     private async assertValidResetCode(user: User | null, code: string): Promise<void> {
         const invalidCodeError = new BadRequestException('Invalid or expired verification code.');
 
