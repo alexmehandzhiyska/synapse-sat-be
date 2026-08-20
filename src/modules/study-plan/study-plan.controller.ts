@@ -15,6 +15,11 @@ export class StudyPlanController {
         return this.studyPlanService.getTestDates();
     }
 
+    @Get()
+    getOne(@Req() req: AuthenticatedRequest) {
+        return this.studyPlanService.getOne(req.user.userId);
+    }
+
     @Put()
     upsert(@Body() upsertStudyPlanDto: UpsertStudyPlanDto, @Req() req: AuthenticatedRequest) {
         return this.studyPlanService.upsert(req.user.userId, upsertStudyPlanDto);

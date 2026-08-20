@@ -16,6 +16,22 @@ export class StudyPlanService {
         return SAT_TEST_DATES;
     }
 
+    async getOne(userId: string) {
+        const studyPlan = await this.studyPlanRepository.findOne({
+            where: { userId }
+        });
+
+        if (!studyPlan) {
+            return null;
+        }
+
+        return {
+            goalScore: studyPlan.goalScore,
+            prepStartDate: studyPlan.prepStartDate,
+            testDate: studyPlan.testDate
+        };
+    }
+
     async upsert(userId: string, upsertStudyPlanDto: UpsertStudyPlanDto) {
         let studyPlan = await this.studyPlanRepository.findOne({
             where: { userId }
