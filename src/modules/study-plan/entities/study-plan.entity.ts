@@ -25,6 +25,12 @@ export class StudyPlan {
     @Column({ name: 'goal_score', type: 'int' })
     goalScore: number;
 
+    @Column({ name: 'prep_start_date', type: 'date' })
+    prepStartDate: string;
+
+    @Column({ name: 'test_date', type: 'date' })
+    testDate: string;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 

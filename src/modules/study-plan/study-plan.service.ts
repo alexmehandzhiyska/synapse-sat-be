@@ -21,10 +21,15 @@ export class StudyPlanService {
         }
 
         studyPlan.goalScore = upsertStudyPlanDto.goalScore;
+        studyPlan.prepStartDate = upsertStudyPlanDto.prepStartDate;
+        studyPlan.testDate = upsertStudyPlanDto.testDate;
+        
         await this.studyPlanRepository.save(studyPlan);
 
         return {
-            goalScore: studyPlan.goalScore
+            goalScore: studyPlan.goalScore,
+            prepStartDate: studyPlan.prepStartDate,
+            testDate: studyPlan.testDate
         };
     }
 }
