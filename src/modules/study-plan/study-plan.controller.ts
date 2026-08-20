@@ -1,4 +1,4 @@
-import { Body, Controller, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, Req, UseGuards } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
@@ -9,6 +9,11 @@ import { StudyPlanService } from './study-plan.service';
 @Controller('study-plan')
 export class StudyPlanController {
     constructor(private readonly studyPlanService: StudyPlanService) { }
+
+    @Get('test-dates')
+    getTestDates() {
+        return this.studyPlanService.getTestDates();
+    }
 
     @Put()
     upsert(@Body() upsertStudyPlanDto: UpsertStudyPlanDto, @Req() req: AuthenticatedRequest) {

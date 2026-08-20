@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { SAT_TEST_DATES } from './constants/study-plan.constants';
 import { UpsertStudyPlanDto } from './dto/upsert-study-plan.dto';
 import { StudyPlan } from './entities/study-plan.entity';
 
@@ -10,6 +11,10 @@ export class StudyPlanService {
     constructor(
         @InjectRepository(StudyPlan) private readonly studyPlanRepository: Repository<StudyPlan>,
     ) { }
+
+    getTestDates() {
+        return SAT_TEST_DATES;
+    }
 
     async upsert(userId: string, upsertStudyPlanDto: UpsertStudyPlanDto) {
         let studyPlan = await this.studyPlanRepository.findOne({
