@@ -175,7 +175,8 @@ export class AuthService {
             email: user.email,
             country: user.country,
             city: user.city,
-            school: user.school
+            school: user.school,
+            role: user.role
         };
     }
 
@@ -202,7 +203,8 @@ export class AuthService {
             email: user.email,
             country: user.country,
             city: user.city,
-            school: user.school
+            school: user.school,
+            role: user.role
         };
     }
 
