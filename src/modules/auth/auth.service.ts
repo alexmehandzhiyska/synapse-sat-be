@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -50,7 +50,7 @@ export class AuthService {
 
         const savedUser = await this.usersRepository.save(user);
 
-        const tokens = await this.generateTokens(savedUser.id, savedUser.email);
+        const tokens = await this.generateTokens(savedUser.id, savedUser.email, savedUser.role);
 
         return {
             success: true,
@@ -83,7 +83,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid email or password.');
         }
 
-        const tokens = await this.generateTokens(existingUser.id, existingUser.email);
+        const tokens = await this.generateTokens(existingUser.id, existingUser.email, existingUser.role);
 
         return {
             success: true,
@@ -228,8 +228,8 @@ export class AuthService {
         }
     }
 
-    private async generateTokens(userId: string, email: string) {
-        const payload = { sub: userId, email };
+    private async generateTokens(userId: string, email: string, role: UserRole) {
+        const payload = { sub: userId, email, role };
 
         const accessToken = await this.jwtService.signAsync(payload, {
             secret: process.env.JWT_ACCESS_SECRET

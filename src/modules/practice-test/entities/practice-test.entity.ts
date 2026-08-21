@@ -21,7 +21,7 @@ export class PracticeTest {
     @Column({ type: 'enum', enum: TestType })
     type: TestType;
 
-    @OneToMany(() => Section, (section) => section.test)
+    @OneToMany(() => Section, (section) => section.test, { cascade: ['insert'] })
     sections: Section[];
 
     @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })

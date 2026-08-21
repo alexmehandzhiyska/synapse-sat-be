@@ -6,7 +6,7 @@ import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { PracticeTest } from './entities/practice-test.entity';
 import { Section } from './entities/section.entity';
-import { TestType } from './enums/practice-test.enums';
+import { Section as SectionName, TestType } from './enums/practice-test.enums';
 import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
 
 @Injectable()
@@ -16,8 +16,17 @@ export class PracticeTestService {
         private readonly practiceTestRepository: Repository<PracticeTest>,
     ) { }
 
-    create(createPracticeTestDto: CreatePracticeTestDto) {
-        return 'This action adds a new practiceTest';
+    create(createPracticeTestDto: CreatePracticeTestDto): Promise<PracticeTest> {
+        const test = this.practiceTestRepository.create({
+            title: createPracticeTestDto.title,
+            type: createPracticeTestDto.type,
+            sections: Object.values(SectionName).map((name) => ({
+                name,
+                modules: [{ position: 1 }, { position: 2 }],
+            })),
+        });
+
+        return this.practiceTestRepository.save(test);
     }
 
     async findAll(): Promise<PracticeTest[]> {

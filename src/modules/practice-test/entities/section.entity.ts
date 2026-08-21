@@ -31,6 +31,6 @@ export class Section {
     @Column({ type: 'text', nullable: true })
     directions: string | null;
 
-    @OneToMany(() => Module, (module) => module.section)
+    @OneToMany(() => Module, (module) => module.section, { cascade: ['insert'] })
     modules: Module[];
 }

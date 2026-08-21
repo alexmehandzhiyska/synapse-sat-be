@@ -3,11 +3,13 @@ import { PracticeTestService } from './practice-test.service';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TeacherGuard } from '../auth/guards/teacher.guard';
 
 @Controller('practice-test')
 export class PracticeTestController {
     constructor(private readonly practiceTestService: PracticeTestService) { }
 
+    @UseGuards(TeacherGuard)
     @Post()
     create(@Body() createPracticeTestDto: CreatePracticeTestDto) {
         return this.practiceTestService.create(createPracticeTestDto);
