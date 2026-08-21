@@ -60,6 +60,7 @@ export class AuthService {
                 firstName: savedUser.firstName,
                 lastName: savedUser.lastName,
                 email: savedUser.email,
+                role: savedUser.role,
             },
             ...tokens
         };
@@ -91,7 +92,8 @@ export class AuthService {
                 id: existingUser.id,
                 firstName: existingUser.firstName,
                 lastName: existingUser.lastName,
-                email: existingUser.email
+                email: existingUser.email,
+                role: existingUser.role
             },
             ...tokens
         };
