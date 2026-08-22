@@ -77,6 +77,10 @@ export class AuthService {
             throw new UnauthorizedException('Invalid email or password.');
         }
 
+        if (!existingUser.isActive) {
+            throw new UnauthorizedException('This account has been deactivated.');
+        }
+
         const passwordIsCorrect = await bcrypt.compare(loginDto.password, existingUser.passwordHash);
 
         if (!passwordIsCorrect) {

@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PracticeTestModule } from './modules/practice-test/practice-test.module';
 import { TestAttemptModule } from './modules/test-attempt/test-attempt.module';
 import { StudyPlanModule } from './modules/study-plan/study-plan.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { StudyPlanModule } from './modules/study-plan/study-plan.module';
     AuthModule,
     PracticeTestModule,
     TestAttemptModule,
-    StudyPlanModule
+    StudyPlanModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
