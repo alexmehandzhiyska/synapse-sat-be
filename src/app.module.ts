@@ -8,6 +8,7 @@ import { PracticeTestModule } from './modules/practice-test/practice-test.module
 import { TestAttemptModule } from './modules/test-attempt/test-attempt.module';
 import { StudyPlanModule } from './modules/study-plan/study-plan.module';
 import { UsersModule } from './modules/users/users.module';
+import { NotebookModule } from './modules/notebook/notebook.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { UsersModule } from './modules/users/users.module';
     PracticeTestModule,
     TestAttemptModule,
     StudyPlanModule,
-    UsersModule
+    UsersModule,
+    NotebookModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,7 +3,7 @@ import { Module } from '../../practice-test/entities/module.entity';
 import { PracticeTest } from '../../practice-test/entities/practice-test.entity';
 import { Question } from '../../practice-test/entities/question.entity';
 import { Section as SectionEntity } from '../../practice-test/entities/section.entity';
-import { Domain, Section, TestType } from '../../practice-test/enums/practice-test.enums';
+import { Difficulty, Domain, Section, TestType } from '../../practice-test/enums/practice-test.enums';
 
 type QuestionStatus = 'correct' | 'incorrect' | 'omitted';
 
@@ -12,9 +12,23 @@ interface AttemptAnswer {
     selectedChoiceId: string | null;
 }
 
+interface AnswerChoiceResult {
+    id: string;
+    label: string;
+    content: string;
+    isCorrect: boolean;
+}
+
 interface QuestionResult {
+    id: string;
     position: number;
     status: QuestionStatus;
+    domain: Domain;
+    difficulty: Difficulty;
+    passage: string | null;
+    prompt: string;
+    selectedChoiceId: string | null;
+    answerChoices: AnswerChoiceResult[];
 }
 
 interface ModuleScore {
@@ -49,10 +63,12 @@ export interface ScoreReport {
     sections: SectionScore[];
 }
 
+function getSelectedChoiceId(question: Question, answers: AttemptAnswer[]): string | null {
+    return answers.find((answer) => answer.questionId === question.id)?.selectedChoiceId ?? null;
+}
+
 function getQuestionStatus(question: Question, answers: AttemptAnswer[]): QuestionStatus {
-    const selectedChoiceId = answers.find(
-        (answer) => answer.questionId === question.id,
-    )?.selectedChoiceId;
+    const selectedChoiceId = getSelectedChoiceId(question, answers);
 
     if (selectedChoiceId == null) {
         return 'omitted';
@@ -61,6 +77,27 @@ function getQuestionStatus(question: Question, answers: AttemptAnswer[]): Questi
     const correctChoice = question.answerChoices.find((choice) => choice.isCorrect);
 
     return correctChoice?.id === selectedChoiceId ? 'correct' : 'incorrect';
+}
+
+function buildQuestionResult(question: Question, answers: AttemptAnswer[]): QuestionResult {
+    return {
+        id: question.id,
+        position: question.position,
+        status: getQuestionStatus(question, answers),
+        domain: question.domain,
+        difficulty: question.difficulty,
+        passage: question.passage,
+        prompt: question.prompt,
+        selectedChoiceId: getSelectedChoiceId(question, answers),
+        answerChoices: [...question.answerChoices]
+            .sort((a, b) => a.label.localeCompare(b.label))
+            .map((choice) => ({
+                id: choice.id,
+                label: choice.label,
+                content: choice.content,
+                isCorrect: choice.isCorrect,
+            })),
+    };
 }
 
 // Maps a section's raw score onto the SAT's 200-800 scale, rounded to the
@@ -78,10 +115,7 @@ function computeScaledScore(correct: number, total: number): number {
 function scoreModule(module: Module, answers: AttemptAnswer[]): ModuleScore {
     const questions = [...module.questions]
         .sort((a, b) => a.position - b.position)
-        .map((question) => ({
-            position: question.position,
-            status: getQuestionStatus(question, answers),
-        }));
+        .map((question) => buildQuestionResult(question, answers));
 
     return {
         position: module.position,
