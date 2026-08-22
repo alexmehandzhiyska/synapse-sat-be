@@ -184,7 +184,13 @@ export class PracticeTestService {
         return `This action updates a #${id} practiceTest`;
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} practiceTest`;
+    async remove(id: string): Promise<void> {
+        const test = await this.practiceTestRepository.findOne({ where: { id } });
+
+        if (!test) {
+            throw new NotFoundException(`Practice test ${id} not found.`);
+        }
+
+        await this.practiceTestRepository.delete(id);
     }
 }

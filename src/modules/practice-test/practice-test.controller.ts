@@ -41,9 +41,10 @@ export class PracticeTestController {
         return this.practiceTestService.update(Number(id), updatePracticeTestDto);
     }
 
+    @UseGuards(TeacherGuard)
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.practiceTestService.remove(Number(id));
+        return this.practiceTestService.remove(id);
     }
 
     @UseGuards(TeacherGuard)
