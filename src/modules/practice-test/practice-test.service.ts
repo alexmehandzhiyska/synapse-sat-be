@@ -3,8 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { SECTION_ORDER } from './constants/practice-test.constants';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
+import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
+import { Module } from './entities/module.entity';
 import { PracticeTest } from './entities/practice-test.entity';
+import { Question } from './entities/question.entity';
 import { Section } from './entities/section.entity';
 import { Section as SectionName, TestType } from './enums/practice-test.enums';
 import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
@@ -14,6 +17,10 @@ export class PracticeTestService {
     constructor(
         @InjectRepository(PracticeTest)
         private readonly practiceTestRepository: Repository<PracticeTest>,
+        @InjectRepository(Module)
+        private readonly moduleRepository: Repository<Module>,
+        @InjectRepository(Question)
+        private readonly questionRepository: Repository<Question>,
     ) { }
 
     create(createPracticeTestDto: CreatePracticeTestDto): Promise<PracticeTest> {
@@ -87,6 +94,32 @@ export class PracticeTestService {
         this.sortSections(test.sections);
 
         return toFullPracticeTestResponse(test);
+    }
+
+    async createQuestion(moduleId: string, createQuestionDto: CreateQuestionDto): Promise<Question> {
+        const module = await this.moduleRepository.findOne({
+            where: { id: moduleId },
+            relations: { section: true },
+        });
+
+        if (!module) {
+            throw new NotFoundException(`Module ${moduleId} not found.`);
+        }
+
+        const questionCount = await this.questionRepository.count({ where: { moduleId } });
+
+        const question = this.questionRepository.create({
+            moduleId,
+            section: module.section.name,
+            domain: createQuestionDto.domain,
+            ...(createQuestionDto.difficulty && { difficulty: createQuestionDto.difficulty }),
+            passage: createQuestionDto.passage ?? null,
+            prompt: createQuestionDto.prompt,
+            position: questionCount + 1,
+            answerChoices: createQuestionDto.answerChoices,
+        });
+
+        return this.questionRepository.save(question);
     }
 
     private sortSections(sections: Section[]): void {

@@ -49,12 +49,12 @@ export class Question {
     @Column({ type: 'text' })
     prompt: string;
 
-    @Column({ type: 'enum', enum: Difficulty })
+    @Column({ type: 'enum', enum: Difficulty, default: Difficulty.EASY })
     difficulty: Difficulty;
 
     @Column({ type: 'int' })
     position: number; // order within the module (1-27)
 
-    @OneToMany(() => AnswerChoice, (choice) => choice.question)
+    @OneToMany(() => AnswerChoice, (choice) => choice.question, { cascade: ['insert'] })
     answerChoices: AnswerChoice[];
 }
