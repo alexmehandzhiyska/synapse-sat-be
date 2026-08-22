@@ -5,6 +5,8 @@ import { SECTION_ORDER } from './constants/practice-test.constants';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
+import { UpdateQuestionDto } from './dto/update-question.dto';
+import { AnswerChoice } from './entities/answer-choice.entity';
 import { Module } from './entities/module.entity';
 import { PracticeTest } from './entities/practice-test.entity';
 import { Question } from './entities/question.entity';
@@ -21,6 +23,8 @@ export class PracticeTestService {
         private readonly moduleRepository: Repository<Module>,
         @InjectRepository(Question)
         private readonly questionRepository: Repository<Question>,
+        @InjectRepository(AnswerChoice)
+        private readonly answerChoiceRepository: Repository<AnswerChoice>,
     ) { }
 
     create(createPracticeTestDto: CreatePracticeTestDto): Promise<PracticeTest> {
@@ -69,7 +73,6 @@ export class PracticeTestService {
 
     async findOne(id: string, isTeacher: boolean) {
         const test = await this.getFullTest(id);
-
         return toFullPracticeTestResponse(test, isTeacher);
     }
 
@@ -126,6 +129,51 @@ export class PracticeTestService {
         });
 
         return this.questionRepository.save(question);
+    }
+
+    async updateQuestion(questionId: string, updateQuestionDto: UpdateQuestionDto): Promise<Question> {
+        const question = await this.questionRepository.findOne({
+            where: { id: questionId },
+            relations: { answerChoices: true },
+        });
+
+        if (!question) {
+            throw new NotFoundException(`Question ${questionId} not found.`);
+        }
+
+        if (updateQuestionDto.domain !== undefined) {
+            question.domain = updateQuestionDto.domain;
+        }
+
+        if (updateQuestionDto.difficulty !== undefined) {
+            question.difficulty = updateQuestionDto.difficulty;
+        }
+
+        if (updateQuestionDto.passage !== undefined) {
+            question.passage = updateQuestionDto.passage || null;
+        }
+
+        if (updateQuestionDto.prompt !== undefined) {
+            question.prompt = updateQuestionDto.prompt;
+        }
+
+        await this.questionRepository.save(question);
+
+        if (updateQuestionDto.answerChoices) {
+            for (const choiceUpdate of updateQuestionDto.answerChoices) {
+                const choice = question.answerChoices.find((c) => c.id === choiceUpdate.id);
+
+                if (choice) {
+                    choice.content = choiceUpdate.content;
+                    choice.isCorrect = choiceUpdate.isCorrect;
+                }
+            }
+
+            await this.answerChoiceRepository.save(question.answerChoices);
+            question.answerChoices.sort((a, b) => a.label.localeCompare(b.label));
+        }
+
+        return question;
     }
 
     private sortSections(sections: Section[]): void {

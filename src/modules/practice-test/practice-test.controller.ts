@@ -3,6 +3,7 @@ import { PracticeTestService } from './practice-test.service';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
+import { UpdateQuestionDto } from './dto/update-question.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TeacherGuard } from '../auth/guards/teacher.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
@@ -49,5 +50,11 @@ export class PracticeTestController {
     @Post('modules/:moduleId/questions')
     createQuestion(@Param('moduleId') moduleId: string, @Body() createQuestionDto: CreateQuestionDto) {
         return this.practiceTestService.createQuestion(moduleId, createQuestionDto);
+    }
+
+    @UseGuards(TeacherGuard)
+    @Patch('questions/:questionId')
+    updateQuestion(@Param('questionId') questionId: string, @Body() updateQuestionDto: UpdateQuestionDto) {
+        return this.practiceTestService.updateQuestion(questionId, updateQuestionDto);
     }
 }
