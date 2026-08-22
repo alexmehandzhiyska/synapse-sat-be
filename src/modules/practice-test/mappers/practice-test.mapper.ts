@@ -4,15 +4,16 @@ import { PracticeTest } from '../entities/practice-test.entity';
 import { Question } from '../entities/question.entity';
 import { Section } from '../entities/section.entity';
 
-function toAnswerChoiceResponse(choice: AnswerChoice) {
+function toAnswerChoiceResponse(choice: AnswerChoice, includeCorrectness: boolean) {
     return {
         id: choice.id,
         label: choice.label,
         content: choice.content,
+        ...(includeCorrectness && { isCorrect: choice.isCorrect }),
     };
 }
 
-function toQuestionResponse(question: Question) {
+function toQuestionResponse(question: Question, includeCorrectness: boolean) {
     return {
         id: question.id,
         position: question.position,
@@ -20,36 +21,36 @@ function toQuestionResponse(question: Question) {
         difficulty: question.difficulty,
         passage: question.passage,
         prompt: question.prompt,
-        answerChoices: question.answerChoices.map(toAnswerChoiceResponse),
+        answerChoices: question.answerChoices.map((choice) => toAnswerChoiceResponse(choice, includeCorrectness)),
     };
 }
 
-function toModuleResponse(module: Module, section: Section) {
+function toModuleResponse(module: Module, section: Section, includeCorrectness: boolean) {
     module.section = section;
 
     return {
         id: module.id,
         position: module.position,
-        questions: module.questions.map(toQuestionResponse),
+        questions: module.questions.map((question) => toQuestionResponse(question, includeCorrectness)),
     };
 }
 
-function toSectionResponse(section: Section) {
+function toSectionResponse(section: Section, includeCorrectness: boolean) {
     return {
         id: section.id,
         name: section.name,
         directions: section.directions,
-        modules: section.modules.map((module) => toModuleResponse(module, section)),
+        modules: section.modules.map((module) => toModuleResponse(module, section, includeCorrectness)),
     };
 }
 
-export function toFullPracticeTestResponse(test: PracticeTest) {
+export function toFullPracticeTestResponse(test: PracticeTest, includeCorrectness = false) {
     return {
         id: test.id,
         title: test.title,
         type: test.type,
         createdAt: test.createdAt,
         updatedAt: test.updatedAt,
-        sections: test.sections.map(toSectionResponse),
+        sections: test.sections.map((section) => toSectionResponse(section, includeCorrectness)),
     };
 }

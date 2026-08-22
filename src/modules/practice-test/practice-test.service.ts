@@ -67,7 +67,13 @@ export class PracticeTestService {
         return test;
     }
 
-    async findOne(id: string) {
+    async findOne(id: string, isTeacher: boolean) {
+        const test = await this.getFullTest(id);
+
+        return toFullPracticeTestResponse(test, isTeacher);
+    }
+
+    private async getFullTest(id: string): Promise<PracticeTest> {
         const test = await this.practiceTestRepository.findOne({
             where: { id },
             relations: {
@@ -93,7 +99,7 @@ export class PracticeTestService {
         // Sort sections - Reading/writing first, then math
         this.sortSections(test.sections);
 
-        return toFullPracticeTestResponse(test);
+        return test;
     }
 
     async createQuestion(moduleId: string, createQuestionDto: CreateQuestionDto): Promise<Question> {
