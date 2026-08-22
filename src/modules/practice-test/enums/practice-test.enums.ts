@@ -1,6 +1,7 @@
 export enum TestType {
     DIAGNOSTIC = 'diagnostic',
     STANDARD = 'standard',
+    CHECK_IN = 'check_in',
 }
 
 export enum Section {

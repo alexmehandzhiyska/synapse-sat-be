@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { SECTION_ORDER } from './constants/practice-test.constants';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -42,7 +42,7 @@ export class PracticeTestService {
 
     async findAll(): Promise<PracticeTest[]> {
         const tests = await this.practiceTestRepository.find({
-            where: { type: Not(TestType.DIAGNOSTIC) },
+            where: { type: Not(In([TestType.DIAGNOSTIC, TestType.CHECK_IN])) },
             relations: { sections: { modules: true } },
             order: {
                 createdAt: 'ASC',
