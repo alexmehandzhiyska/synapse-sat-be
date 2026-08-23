@@ -7,6 +7,7 @@ import { PracticeTest } from '../practice-test/entities/practice-test.entity';
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttempt } from './entities/test-attempt.entity';
 import { UserAnswer } from './entities/user-answer.entity';
+import { buildScoreDistribution, ScoreDistribution } from './utils/score-distribution';
 import { buildScoreReport, ScoreReport } from './utils/score-test';
 
 @Injectable()
@@ -138,6 +139,28 @@ export class TestAttemptService {
         });
 
         return buildScoreReport(testAttempt.id, test, testAttempt.answers);
+    }
+
+    async getScoreDistribution(attemptId: string, userId: string): Promise<ScoreDistribution> {
+        const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
+
+        const test = await this.practiceTestRepository.findOneOrFail({
+            where: { id: testAttempt.testId },
+            relations: { sections: { modules: { questions: { answerChoices: true } } } },
+        });
+
+        const completedAttempts = await this.testAttemptRepository.find({
+            where: { testId: testAttempt.testId, completedAt: Not(IsNull()) },
+            relations: { answers: true },
+        });
+
+        const scores = completedAttempts.map(
+            (attempt) => buildScoreReport(attempt.id, test, attempt.answers).totalScaled,
+        );
+
+        const userScore = buildScoreReport(testAttempt.id, test, testAttempt.answers).totalScaled;
+
+        return buildScoreDistribution(scores, userScore);
     }
 
     private async getOwnedAttemptOrThrow(attemptId: string, userId: string): Promise<TestAttempt> {

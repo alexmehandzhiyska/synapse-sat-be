@@ -36,6 +36,11 @@ export class TestAttemptController {
         return this.testAttemptService.getScore(attemptId, req.user.userId);
     }
 
+    @Get(':attemptId/score-distribution')
+    getScoreDistribution(@Param('attemptId') attemptId: string, @Req() req: AuthenticatedRequest) {
+        return this.testAttemptService.getScoreDistribution(attemptId, req.user.userId);
+    }
+
     @Post()
     startOrResume(@Body() dto: CreateTestAttemptDto, @Req() req: AuthenticatedRequest) {
         return this.testAttemptService.startOrResume(dto.testId, req.user.userId);

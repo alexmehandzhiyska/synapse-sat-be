@@ -25,7 +25,9 @@
         "seed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts",
         "reseed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts --force",
         "seed:diagnostic-test": "ts-node ./src/seeds/diagnostic-test.seeder.ts",
-        "reseed:diagnostic-test": "ts-node ./src/seeds/diagnostic-test.seeder.ts --force"
+        "reseed:diagnostic-test": "ts-node ./src/seeds/diagnostic-test.seeder.ts --force",
+        "seed:dummy-attempts": "ts-node ./src/seeds/dummy-test-attempts.seeder.ts",
+        "reseed:dummy-attempts": "ts-node ./src/seeds/dummy-test-attempts.seeder.ts --force"
     },
     "dependencies": {
         "@nestjs/common": "^10.0.0",
