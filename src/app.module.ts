@@ -9,6 +9,7 @@ import { TestAttemptModule } from './modules/test-attempt/test-attempt.module';
 import { StudyPlanModule } from './modules/study-plan/study-plan.module';
 import { UsersModule } from './modules/users/users.module';
 import { NotebookModule } from './modules/notebook/notebook.module';
+import { LessonsModule } from './modules/lessons/lessons.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { NotebookModule } from './modules/notebook/notebook.module';
     TestAttemptModule,
     StudyPlanModule,
     UsersModule,
-    NotebookModule
+    NotebookModule,
+    LessonsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -123,16 +123,16 @@ export class PracticeTestService {
         });
     }
 
-    // A question's status is based on the student's most recent answer to it
     private async filterByStatus(
         candidates: Question[],
         userId: string,
-        statuses: QuestionStatusFilter[],
+        statusesSearched: QuestionStatusFilter[],
     ): Promise<Question[]> {
         if (candidates.length === 0) {
             return [];
         }
 
+        // A question's status is based on the student's most recent answer to it
         const latestAnswers = await this.userAnswerRepository
             .createQueryBuilder('answer')
             .innerJoin('answer.testAttempt', 'attempt')
@@ -146,14 +146,14 @@ export class PracticeTestService {
             .getMany();
 
         const latestChoiceByQuestion = new Map(
-            latestAnswers.map((answer) => [answer.questionId, answer.selectedChoiceId]),
+            latestAnswers.map((answer) => [answer.questionId, answer.selectedChoiceId])
         );
 
         return candidates.filter((question) => {
             const selectedChoiceId = latestChoiceByQuestion.get(question.id) ?? null;
             const status = this.resolveStatus(question, selectedChoiceId);
 
-            return statuses.includes(status);
+            return statusesSearched.includes(status);
         });
     }
 
