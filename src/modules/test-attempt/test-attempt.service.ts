@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
+import { TestType } from '../practice-test/enums/practice-test.enums';
 
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttempt } from './entities/test-attempt.entity';
@@ -29,8 +30,9 @@ export class TestAttemptService {
     }
 
     async getAllCompleted(userId: string) {
+        // Custom packets are excluded from progress tracking and charts
         const completedTests = await this.testAttemptRepository.find({
-            where: { userId, completedAt: Not(IsNull()) },
+            where: { userId, completedAt: Not(IsNull()), test: { type: Not(TestType.CUSTOM) } },
             relations: { test: true, answers: true },
             order: { completedAt: 'DESC' },
         });
