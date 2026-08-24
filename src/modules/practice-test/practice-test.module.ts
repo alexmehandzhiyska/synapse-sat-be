@@ -7,6 +7,7 @@ import { Module as PracticeTestModuleEntity } from './entities/module.entity';
 import { PracticeTest } from './entities/practice-test.entity';
 import { Question } from './entities/question.entity';
 import { Section } from './entities/section.entity';
+import { UserAnswer } from '../test-attempt/entities/user-answer.entity';
 
 @Module({
     imports: [
@@ -16,6 +17,7 @@ import { Section } from './entities/section.entity';
             Question,
             AnswerChoice,
             Section,
+            UserAnswer
         ]),
     ],
     controllers: [PracticeTestController],

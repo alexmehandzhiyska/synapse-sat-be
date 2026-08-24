@@ -2,6 +2,13 @@ export enum TestType {
     DIAGNOSTIC = 'diagnostic',
     STANDARD = 'standard',
     CHECK_IN = 'check_in',
+    CUSTOM = 'custom',
+}
+
+export enum QuestionStatusFilter {
+    CORRECT = 'correct',
+    INCORRECT = 'incorrect',
+    UNSOLVED = 'unsolved',
 }
 
 export enum Section {

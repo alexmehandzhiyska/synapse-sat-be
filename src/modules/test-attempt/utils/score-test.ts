@@ -58,6 +58,7 @@ interface SectionScore {
 export interface ScoreReport {
     attemptId: string;
     isDiagnostic: boolean;
+    isCustom: boolean;
     totalRaw: number;
     totalScaled: number;
     sections: SectionScore[];
@@ -183,6 +184,7 @@ export function buildScoreReport(
     return {
         attemptId,
         isDiagnostic: test.type === TestType.DIAGNOSTIC,
+        isCustom: test.type === TestType.CUSTOM,
         totalRaw,
         totalScaled,
         sections,

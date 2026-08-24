@@ -21,6 +21,10 @@ export class PracticeTest {
     @Column({ type: 'enum', enum: TestType })
     type: TestType;
 
+    // Only set for type === CUSTOM - the student the packet was generated for.
+    @Column({ name: 'owner_id', type: 'uuid', nullable: true })
+    ownerId: string | null;
+
     @OneToMany(() => Section, (section) => section.test, { cascade: ['insert'] })
     sections: Section[];
 

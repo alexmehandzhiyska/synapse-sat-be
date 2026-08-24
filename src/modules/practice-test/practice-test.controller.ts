@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } fro
 import { PracticeTestService } from './practice-test.service';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
+import { GenerateCustomPacketDto } from './dto/generate-custom-packet.dto';
 import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -28,6 +29,12 @@ export class PracticeTestController {
     @Get('diagnostic')
     findDiagnostic() {
         return this.practiceTestService.findDiagnostic();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('custom-packet')
+    generateCustomPacket(@Body() dto: GenerateCustomPacketDto, @Req() req: AuthenticatedRequest) {
+        return this.practiceTestService.generateCustomPacket(req.user.userId, dto);
     }
 
     @UseGuards(JwtAuthGuard)
