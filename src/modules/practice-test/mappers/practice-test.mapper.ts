@@ -49,6 +49,7 @@ export function toFullPracticeTestResponse(test: PracticeTest, includeCorrectnes
         id: test.id,
         title: test.title,
         type: test.type,
+        domain: test.domain,
         createdAt: test.createdAt,
         updatedAt: test.updatedAt,
         sections: test.sections.map((section) => toSectionResponse(section, includeCorrectness)),

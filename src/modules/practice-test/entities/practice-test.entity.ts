@@ -7,7 +7,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 
-import { TestType } from '../enums/practice-test.enums';
+import { Domain, TestType } from '../enums/practice-test.enums';
 import { Section } from './section.entity';
 
 @Entity({ name: 'practice_tests' })
@@ -24,6 +24,10 @@ export class PracticeTest {
     // Only set for custom packets - the student the packet was generated for.
     @Column({ name: 'owner_id', type: 'uuid', nullable: true })
     ownerId: string | null;
+
+    // Only set for check-in tests - the domain the check-in test is scoped to.
+    @Column({ type: 'enum', enum: Domain, nullable: true })
+    domain: Domain | null;
 
     @OneToMany(() => Section, (section) => section.test, { cascade: ['insert'] })
     sections: Section[];

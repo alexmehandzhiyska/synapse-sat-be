@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
 import { Domain, TestType } from '../practice-test/enums/practice-test.enums';
@@ -165,8 +165,7 @@ export class TestAttemptService {
         return buildScoreDistribution(scores, userScore);
     }
 
-    // Domain accuracy from the student's most recent completed diagnostic, used to
-    // sequence lessons weakest-domain-first. Null when no diagnostic is completed yet.
+    // Domain accuracy from completed diagnostic, used to sequence lessons from weakest domain first.
     async getDomainAccuracy(userId: string): Promise<Map<Domain, number> | null> {
         const attempt = await this.testAttemptRepository.findOne({
             where: { userId, completedAt: Not(IsNull()), test: { type: TestType.DIAGNOSTIC } },
@@ -193,6 +192,18 @@ export class TestAttemptService {
         }
 
         return accuracy;
+    }
+
+    async getCompletedTestIds(userId: string, testIds: string[]): Promise<Set<string>> {
+        if (testIds.length === 0) {
+            return new Set();
+        }
+
+        const attempts = await this.testAttemptRepository.find({
+            where: { userId, testId: In(testIds), completedAt: Not(IsNull()) },
+        });
+
+        return new Set(attempts.map((attempt) => attempt.testId));
     }
 
     private async getOwnedAttemptOrThrow(attemptId: string, userId: string): Promise<TestAttempt> {

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { PracticeTest } from '../practice-test/entities/practice-test.entity';
 import { TestAttemptModule } from '../test-attempt/test-attempt.module';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
@@ -12,8 +13,9 @@ import { LessonProgress } from './entities/lesson-progress.entity';
         TypeOrmModule.forFeature([
             Lesson,
             LessonProgress,
+            PracticeTest,
         ]),
-        TestAttemptModule,
+        TestAttemptModule
     ],
     controllers: [LessonsController],
     providers: [LessonsService],

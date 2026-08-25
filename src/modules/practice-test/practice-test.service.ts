@@ -16,6 +16,7 @@ import { Question } from './entities/question.entity';
 import { Section } from './entities/section.entity';
 import { QuestionStatusFilter, Section as SectionName, TestType } from './enums/practice-test.enums';
 import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
+import { getSectionForDomain } from './utils/domain-section';
 import { shuffle } from './utils/shuffle';
 
 @Injectable()
@@ -33,14 +34,40 @@ export class PracticeTestService {
         private readonly userAnswerRepository: Repository<UserAnswer>,
     ) { }
 
-    create(createPracticeTestDto: CreatePracticeTestDto): Promise<PracticeTest> {
+    async create(createPracticeTestDto: CreatePracticeTestDto): Promise<PracticeTest> {
+        const isCheckIn = createPracticeTestDto.type === TestType.CHECK_IN;
+
+        if (isCheckIn && !createPracticeTestDto.domain) {
+            throw new BadRequestException('A check-in test must be scoped to a domain.');
+        }
+
+        if (isCheckIn) {
+            const existing = await this.practiceTestRepository.findOne({
+                where: { type: TestType.CHECK_IN, domain: createPracticeTestDto.domain },
+            });
+
+            if (existing) {
+                throw new BadRequestException('This domain already has a check-in test.');
+            }
+        }
+
+        // A check-in test is a short, single-module quiz for one domain - no adaptive
+        // module 1/2 split, and no unrelated section.
+        const sections = isCheckIn
+            ? [{
+                name: getSectionForDomain(createPracticeTestDto.domain!),
+                modules: [{ position: 1 }],
+            }]
+            : Object.values(SectionName).map((name) => ({
+                name,
+                modules: [{ position: 1 }, { position: 2 }],
+            }));
+
         const test = this.practiceTestRepository.create({
             title: createPracticeTestDto.title,
             type: createPracticeTestDto.type,
-            sections: Object.values(SectionName).map((name) => ({
-                name,
-                modules: [{ position: 1 }, { position: 2 }],
-            })),
+            domain: isCheckIn ? createPracticeTestDto.domain : null,
+            sections,
         });
 
         return this.practiceTestRepository.save(test);
