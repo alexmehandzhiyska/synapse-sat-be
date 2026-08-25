@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
-import { TestType } from '../practice-test/enums/practice-test.enums';
+import { Domain, TestType } from '../practice-test/enums/practice-test.enums';
 
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttempt } from './entities/test-attempt.entity';
@@ -163,6 +163,36 @@ export class TestAttemptService {
         const userScore = buildScoreReport(testAttempt.id, test, testAttempt.answers).totalScaled;
 
         return buildScoreDistribution(scores, userScore);
+    }
+
+    // Domain accuracy from the student's most recent completed diagnostic, used to
+    // sequence lessons weakest-domain-first. Null when no diagnostic is completed yet.
+    async getDomainAccuracy(userId: string): Promise<Map<Domain, number> | null> {
+        const attempt = await this.testAttemptRepository.findOne({
+            where: { userId, completedAt: Not(IsNull()), test: { type: TestType.DIAGNOSTIC } },
+            relations: { test: true, answers: true },
+            order: { completedAt: 'DESC' },
+        });
+
+        if (!attempt) {
+            return null;
+        }
+
+        const test = await this.practiceTestRepository.findOneOrFail({
+            where: { id: attempt.testId },
+            relations: { sections: { modules: { questions: { answerChoices: true } } } },
+        });
+
+        const scoreReport = buildScoreReport(attempt.id, test, attempt.answers);
+        const accuracy = new Map<Domain, number>();
+
+        for (const section of scoreReport.sections) {
+            for (const domainScore of section.domains) {
+                accuracy.set(domainScore.domain, domainScore.total === 0 ? 0 : domainScore.correct / domainScore.total);
+            }
+        }
+
+        return accuracy;
     }
 
     private async getOwnedAttemptOrThrow(attemptId: string, userId: string): Promise<TestAttempt> {

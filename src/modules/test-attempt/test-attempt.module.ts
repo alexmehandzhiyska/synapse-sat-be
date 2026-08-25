@@ -17,5 +17,6 @@ import { TestAttemptService } from './test-attempt.service';
     ],
     controllers: [TestAttemptController],
     providers: [TestAttemptService],
+    exports: [TestAttemptService],
 })
 export class TestAttemptModule {}
