@@ -13,7 +13,8 @@ export class StudyPlanService {
     ) { }
 
     getTestDates() {
-        return SAT_TEST_DATES;
+        const today = new Date().toISOString().split('T')[0];
+        return SAT_TEST_DATES.filter((date) => date >= today);
     }
 
     async getOne(userId: string) {
