@@ -11,5 +11,6 @@ import { StudyPlanService } from './study-plan.service';
     ],
     controllers: [StudyPlanController],
     providers: [StudyPlanService],
+    exports: [StudyPlanService],
 })
 export class StudyPlanModule {}

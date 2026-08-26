@@ -42,17 +42,16 @@ export class PracticeTestService {
         }
 
         if (isCheckIn) {
-            const existing = await this.practiceTestRepository.findOne({
+            const existingTest = await this.practiceTestRepository.findOne({
                 where: { type: TestType.CHECK_IN, domain: createPracticeTestDto.domain },
             });
 
-            if (existing) {
+            if (existingTest) {
                 throw new BadRequestException('This domain already has a check-in test.');
             }
         }
 
-        // A check-in test is a short, single-module quiz for one domain - no adaptive
-        // module 1/2 split, and no unrelated section.
+        // Check-in tests have no separate sections and modules
         const sections = isCheckIn
             ? [{
                 name: getSectionForDomain(createPracticeTestDto.domain!),

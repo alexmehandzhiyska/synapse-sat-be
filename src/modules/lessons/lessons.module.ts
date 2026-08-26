@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
+import { StudyPlanModule } from '../study-plan/study-plan.module';
 import { TestAttemptModule } from '../test-attempt/test-attempt.module';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
@@ -15,7 +16,8 @@ import { LessonProgress } from './entities/lesson-progress.entity';
             LessonProgress,
             PracticeTest,
         ]),
-        TestAttemptModule
+        TestAttemptModule,
+        StudyPlanModule,
     ],
     controllers: [LessonsController],
     providers: [LessonsService],
