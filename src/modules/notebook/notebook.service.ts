@@ -19,7 +19,7 @@ export class NotebookService {
     async getByUser(userId: string) {
         const entries = await this.notebookRepository.find({
             where: { userId },
-            relations: { question: true },
+            relations: { question: { answerChoices: true } },
             order: { createdAt: 'DESC' },
         });
 
@@ -29,6 +29,7 @@ export class NotebookService {
     async create(userId: string, createNotebookEntryDto: CreateNotebookEntryDto) {
         const question = await this.questionRepository.findOne({
             where: { id: createNotebookEntryDto.questionId },
+            relations: { answerChoices: true },
         });
 
         if (!question) {
@@ -76,7 +77,7 @@ export class NotebookService {
     private async getOwnedEntry(id: string, userId: string): Promise<NotebookEntry> {
         const entry = await this.notebookRepository.findOne({
             where: { id },
-            relations: { question: true },
+            relations: { question: { answerChoices: true } },
         });
 
         if (!entry || entry.userId !== userId) {
@@ -95,6 +96,14 @@ export class NotebookService {
                 prompt: entry.question.prompt,
                 passage: entry.question.passage,
                 domain: entry.question.domain,
+                answerChoices: [...entry.question.answerChoices]
+                    .sort((a, b) => a.label.localeCompare(b.label))
+                    .map((choice) => ({
+                        id: choice.id,
+                        label: choice.label,
+                        content: choice.content,
+                        isCorrect: choice.isCorrect,
+                    })),
             },
             what: entry.what,
             why: entry.why,
