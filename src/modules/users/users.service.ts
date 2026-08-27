@@ -11,7 +11,7 @@ export class UsersService {
     ) { }
 
     async findAll() {
-        const users = await this.usersRepository.find({ order: { createdAt: 'ASC' } });
+        const users = await this.usersRepository.find({ order: { createdAt: 'DESC' } });
 
         return users.map((user) => this.toUserResponse(user));
     }
