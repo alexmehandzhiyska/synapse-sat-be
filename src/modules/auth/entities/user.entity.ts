@@ -30,19 +30,19 @@ export class User {
     passwordHash: string;
 
     @Column({ nullable: true })
-    resetCodeHash: string;
+    resetCodeHash: string | null;
 
     @Column({ type: 'timestamp', nullable: true })
     resetCodeExpiresAt: Date | null;
 
     @Column({ nullable: true })
-    country: string;
+    country: string | null;
 
     @Column({ nullable: true })
-    city: string;
+    city: string | null;
 
     @Column({ nullable: true })
-    school: string;
+    school: string | null;
 
     @Column({ type: 'enum', enum: UserRole, default: UserRole.STUDENT })
     role: UserRole;
