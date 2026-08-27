@@ -43,6 +43,7 @@ export class PracticeTestController {
         return this.practiceTestService.findOne(id, req.user.role === UserRole.TEACHER);
     }
 
+    @UseGuards(TeacherGuard)
     @Patch(':id')
     update(@Param('id') id: string, @Body() updatePracticeTestDto: UpdatePracticeTestDto) {
         return this.practiceTestService.update(Number(id), updatePracticeTestDto);
