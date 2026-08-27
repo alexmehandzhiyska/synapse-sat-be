@@ -96,6 +96,16 @@ export class LessonsService {
         return this.lessonRepository.save(lesson);
     }
 
+    async delete(lessonId: string): Promise<void> {
+        const lesson = await this.lessonRepository.findOne({ where: { id: lessonId } });
+
+        if (!lesson) {
+            throw new NotFoundException(`Lesson ${lessonId} not found.`);
+        }
+
+        await this.lessonRepository.delete(lessonId);
+    }
+
     // Personalized plan - targets domains furthest from the student's goal first paced against how many days are left before their test.
     async getProgress(userId: string): Promise<DomainProgress[]> {
         const lessons = await this.lessonRepository.find({ order: { position: 'ASC' } });

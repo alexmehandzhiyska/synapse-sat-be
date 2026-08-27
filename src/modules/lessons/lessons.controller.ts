@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseEnumPipe, Patch, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseEnumPipe, Patch, Post, Body, Req, UseGuards } from '@nestjs/common';
 
 import { StudentGuard } from '../auth/guards/student.guard';
 import { TeacherGuard } from '../auth/guards/teacher.guard';
@@ -31,6 +31,12 @@ export class LessonsController {
     @Patch(':lessonId')
     update(@Param('lessonId') lessonId: string, @Body() dto: UpdateLessonDto) {
         return this.lessonsService.update(lessonId, dto);
+    }
+
+    @UseGuards(TeacherGuard)
+    @Delete(':lessonId')
+    delete(@Param('lessonId') lessonId: string) {
+        return this.lessonsService.delete(lessonId);
     }
 
     @UseGuards(StudentGuard)
