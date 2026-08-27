@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseEnumPipe, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseEnumPipe, Patch, Post, Body, Req, UseGuards } from '@nestjs/common';
 
 import { StudentGuard } from '../auth/guards/student.guard';
 import { TeacherGuard } from '../auth/guards/teacher.guard';
@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.i
 import { Domain } from '../practice-test/enums/practice-test.enums';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { UpdateLessonDto } from './dto/update-lesson.dto';
 
 @Controller('lessons')
 export class LessonsController {
@@ -24,6 +25,12 @@ export class LessonsController {
         @Body() dto: CreateLessonDto,
     ) {
         return this.lessonsService.add(domain, dto);
+    }
+
+    @UseGuards(TeacherGuard)
+    @Patch(':lessonId')
+    update(@Param('lessonId') lessonId: string, @Body() dto: UpdateLessonDto) {
+        return this.lessonsService.update(lessonId, dto);
     }
 
     @UseGuards(StudentGuard)

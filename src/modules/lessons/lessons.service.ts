@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -7,6 +7,7 @@ import { Domain, TestType } from '../practice-test/enums/practice-test.enums';
 import { StudyPlanService } from '../study-plan/study-plan.service';
 import { TestAttemptService } from '../test-attempt/test-attempt.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { Lesson } from './entities/lesson.entity';
 import { LessonProgress } from './entities/lesson-progress.entity';
 import {
@@ -73,6 +74,24 @@ export class LessonsService {
             title: dto.title,
             videoUrl: dto.videoUrl,
         });
+
+        return this.lessonRepository.save(lesson);
+    }
+
+    async update(lessonId: string, dto: UpdateLessonDto): Promise<Lesson> {
+        const lesson = await this.lessonRepository.findOne({ where: { id: lessonId } });
+
+        if (!lesson) {
+            throw new NotFoundException(`Lesson ${lessonId} not found.`);
+        }
+
+        if (dto.title !== undefined) {
+            lesson.title = dto.title;
+        }
+
+        if (dto.videoUrl !== undefined) {
+            lesson.videoUrl = dto.videoUrl;
+        }
 
         return this.lessonRepository.save(lesson);
     }
