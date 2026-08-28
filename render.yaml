@@ -10,9 +10,7 @@ services:
     plan: free
     branch: main
     buildCommand: npm install --include=dev && npm run build
-    # Migrations run on start (idempotent — already-applied ones are skipped).
-    # preDeployCommand would be cleaner but is a paid-plan feature on Render.
-    startCommand: npm run migration:run && npm run start:prod
+    startCommand: npm run migration:run:prod && npm run start:prod
     healthCheckPath: /
     envVars:
       # Connection details are injected from the managed Postgres above.

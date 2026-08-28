@@ -21,6 +21,7 @@
         "typeorm": "ts-node ./node_modules/typeorm/cli -d ./src/config/typeorm.config.ts",
         "migration:generate": "npm run typeorm -- migration:generate ./src/migrations/InitPracticeTest",
         "migration:run": "npm run typeorm -- migration:run",
+        "migration:run:prod": "typeorm migration:run -d dist/config/typeorm.config.js",
         "migration:revert": "npm run typeorm -- migration:revert",
         "seed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts",
         "reseed:practice-test": "ts-node ./src/seeds/practice-test.seeder.ts --force",
