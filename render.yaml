@@ -1,0 +1,59 @@
+databases:
+  - name: synapse-sat-db
+    databaseName: synapse_sat
+    plan: free
+
+services:
+  - type: web
+    name: synapse-sat-be
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm install --include=dev && npm run build
+    # Migrations run on start (idempotent — already-applied ones are skipped).
+    # preDeployCommand would be cleaner but is a paid-plan feature on Render.
+    startCommand: npm run migration:run && npm run start:prod
+    healthCheckPath: /
+    envVars:
+      # Connection details are injected from the managed Postgres above.
+      - key: DB_HOST
+        fromDatabase:
+          name: synapse-sat-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: synapse-sat-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: synapse-sat-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: synapse-sat-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: synapse-sat-db
+          property: database
+      # Internal (same-region) DB connection does not use SSL.
+      - key: DB_SSL
+        value: "false"
+      # Secrets — set these in the Render dashboard (never committed).
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      # The deployed frontend origin, for CORS. Set after the frontend URL is known.
+      - key: FRONTEND_URL
+        sync: false

@@ -24,7 +24,8 @@ import { LessonsModule } from './modules/lessons/lessons.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME ?? 'synapse_sat',
       autoLoadEntities: true,
-      synchronize: false
+      synchronize: false,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
     }),
     AuthModule,
     PracticeTestModule,
