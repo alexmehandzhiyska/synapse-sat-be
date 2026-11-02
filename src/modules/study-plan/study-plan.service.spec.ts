@@ -9,7 +9,7 @@ type MockRepository = Partial<Record<keyof Repository<any>, jest.Mock>>;
 
 const createMockRepository = (): MockRepository => ({
     findOne: jest.fn(),
-    create: jest.fn((data) => data),
+    create: jest.fn((data) => ({ ...data })),
     save: jest.fn(async (entity) => entity),
 });
 
