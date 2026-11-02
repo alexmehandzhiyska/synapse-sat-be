@@ -27,12 +27,8 @@ export function estimateDaysForDomain(lessonCount: number, hasCheckIn: boolean):
     return lessonCount * DAYS_PER_LESSON + (hasCheckIn ? DAYS_PER_CHECK_IN : 0);
 }
 
-// Greedily includes domains, in priority order, until the time budget runs out.
-// Domains that don't need work (per `needsWork`) are skipped entirely - there's no
-// reason to spend limited time on a domain already at/above the goal-derived target,
-// even if the budget would technically fit it. Falls back to every domain if none
-// need work (student is already on track everywhere), and always includes at least
-// one domain, even if it alone exceeds the budget.
+// Pick domains in priority order until student runs out of time, skipping any that are
+// already at or above target.
 export function pickRecommendedDomains(
     orderedDomains: Domain[],
     estimateDays: (domain: Domain) => number,
@@ -51,7 +47,7 @@ export function pickRecommendedDomains(
         if (recommendedDomains.size > 0 && cost > remainingBudget) {
             break;
         }
-
+        
         recommendedDomains.add(domain);
         remainingBudget -= cost;
     }
