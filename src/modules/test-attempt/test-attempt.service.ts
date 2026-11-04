@@ -187,7 +187,7 @@ export class TestAttemptService {
 
         for (const section of scoreReport.sections) {
             for (const domainScore of section.domains) {
-                accuracy.set(domainScore.domain, domainScore.total === 0 ? 0 : domainScore.correct / domainScore.total);
+                accuracy.set(domainScore.domain, domainScore.correct / domainScore.total);
             }
         }
 
