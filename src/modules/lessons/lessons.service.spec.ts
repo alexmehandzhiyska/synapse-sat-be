@@ -122,6 +122,15 @@ describe('LessonsService', () => {
             expect(result.title).toBe('New title');
             expect(result.videoUrl).toBe('https://www.youtube.com/watch');
         });
+
+        it('updates the video url', async () => {
+            lessonRepository.findOne!.mockResolvedValue(buildExistingLesson());
+
+            const result = await service.update('lesson-1', { videoUrl: 'https://www.youtube.com/watch?v=new' });
+
+            expect(result.title).toBe('Original title');
+            expect(result.videoUrl).toBe('https://www.youtube.com/watch?v=new');
+        });
     });
 
     describe('delete', () => {
@@ -182,6 +191,66 @@ describe('LessonsService', () => {
             ]);
             expect(result[0]).toMatchObject({ status: 'current', isRecommended: true });
             expect(result[1]).toMatchObject({ status: 'locked', isRecommended: true });
+        });
+
+        it('treats domains without a diagnostic score as 0% accuracy when there is no study plan', async () => {
+            lessonRepository.find!.mockResolvedValue([
+                buildLesson('lesson-algebra', Domain.ALGEBRA, 1),
+                buildLesson('lesson-geometry', Domain.GEOMETRY_AND_TRIGONOMETRY, 1),
+                buildLesson('lesson-advanced-math', Domain.ADVANCED_MATH, 1),
+                buildLesson('lesson-problem-solving', Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS, 1),
+            ]);
+            testAttemptService.getDomainAccuracy.mockResolvedValue(
+                new Map([
+                    [Domain.ALGEBRA, 0.5],
+                    [Domain.ADVANCED_MATH, 0.9],
+                ]),
+            );
+
+            const result = await service.getProgress('user-1');
+
+            expect(result.map((domainProgress) => domainProgress.domain)).toEqual([
+                Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+                Domain.GEOMETRY_AND_TRIGONOMETRY,
+                Domain.ALGEBRA,
+                Domain.ADVANCED_MATH,
+            ]);
+        });
+
+        it('puts domains without a diagnostic score first and includes a domain that only has a check-in test', async () => {
+            lessonRepository.find!.mockResolvedValue([
+                buildLesson('lesson-algebra', Domain.ALGEBRA, 1),
+                buildLesson('lesson-advanced-math', Domain.ADVANCED_MATH, 1),
+                buildLesson('lesson-problem-solving', Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS, 1),
+            ]);
+            practiceTestRepository.find!.mockResolvedValue([
+                { id: 'checkin-geometry', domain: Domain.GEOMETRY_AND_TRIGONOMETRY, type: TestType.CHECK_IN },
+            ]);
+            testAttemptService.getDomainAccuracy.mockResolvedValue(
+                new Map([
+                    [Domain.ALGEBRA, 0.5],
+                    [Domain.ADVANCED_MATH, 0.9],
+                ]),
+            );
+            studyPlanService.getOne.mockResolvedValue({
+                goalScore: 1000,
+                testDate: dateDaysFromNow(60),
+                prepStartDate: dateDaysFromNow(-30),
+            });
+
+            const result = await service.getProgress('user-1');
+
+            expect(result.map((domainProgress) => domainProgress.domain).slice(0, 2)).toEqual([
+                Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+                Domain.GEOMETRY_AND_TRIGONOMETRY,
+            ]);
+            
+            expect(result[1]).toMatchObject({
+                domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+                lessons: [],
+                checkInTestId: 'checkin-geometry',
+                isRecommended: true,
+            });
         });
 
         it('keeps a stretch domain locked until the recommended (in-budget) domains are complete', async () => {

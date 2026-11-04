@@ -441,6 +441,14 @@ describe('PracticeTestService', () => {
             expect(userAnswerRepository.createQueryBuilder).not.toHaveBeenCalled();
         });
 
+        it('throws BadRequestException without looking up answers when a status is selected but no question matches', async () => {
+            givenCandidates([]);
+            givenLatestAnswers([]);
+
+            await expect(service.generateCustomPacket('user-1', buildDto({ statuses: [QuestionStatusFilter.CORRECT] }))).rejects.toBeInstanceOf(BadRequestException);
+            expect(userAnswerRepository.createQueryBuilder).not.toHaveBeenCalled();
+        });
+
         describe('status filters', () => {
             beforeEach(() => {
                 givenCandidates([buildQuestion('unsolved'), buildQuestion('correct'), buildQuestion('incorrect')]);
