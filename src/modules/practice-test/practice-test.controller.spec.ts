@@ -159,7 +159,6 @@ describe('PracticeTestController', () => {
 
         it('restricts managing tests and questions to teachers', () => {
             expect(guardsFor('create')).toEqual([TeacherGuard]);
-            expect(guardsFor('update')).toEqual([TeacherGuard]);
             expect(guardsFor('remove')).toEqual([TeacherGuard]);
             expect(guardsFor('createQuestion')).toEqual([TeacherGuard]);
             expect(guardsFor('updateQuestion')).toEqual([TeacherGuard]);

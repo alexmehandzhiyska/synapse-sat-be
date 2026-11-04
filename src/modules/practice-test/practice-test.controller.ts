@@ -3,7 +3,6 @@ import { PracticeTestService } from './practice-test.service';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { GenerateCustomPacketDto } from './dto/generate-custom-packet.dto';
-import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TeacherGuard } from '../auth/guards/teacher.guard';
@@ -41,12 +40,6 @@ export class PracticeTestController {
     @Get(':id')
     findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
         return this.practiceTestService.findOne(id, req.user.role === UserRole.TEACHER);
-    }
-
-    @UseGuards(TeacherGuard)
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updatePracticeTestDto: UpdatePracticeTestDto) {
-        return this.practiceTestService.update(Number(id), updatePracticeTestDto);
     }
 
     @UseGuards(TeacherGuard)

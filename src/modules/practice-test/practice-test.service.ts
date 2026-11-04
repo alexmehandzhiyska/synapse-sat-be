@@ -7,7 +7,6 @@ import { SECTION_ORDER } from './constants/practice-test.constants';
 import { CreatePracticeTestDto } from './dto/create-practice-test.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { GenerateCustomPacketDto } from './dto/generate-custom-packet.dto';
-import { UpdatePracticeTestDto } from './dto/update-practice-test.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { AnswerChoice } from './entities/answer-choice.entity';
 import { Module } from './entities/module.entity';
@@ -333,10 +332,6 @@ export class PracticeTestService {
 
     private sortSections(sections: Section[]): void {
         sections.sort((a, b) => SECTION_ORDER.indexOf(a.name) - SECTION_ORDER.indexOf(b.name));
-    }
-
-    update(id: number, updatePracticeTestDto: UpdatePracticeTestDto) {
-        return `This action updates a #${id} practiceTest`;
     }
 
     async remove(id: string): Promise<void> {
