@@ -9,8 +9,9 @@ import { UpdateTimeRemainingDto } from './dto/update-time-remaining.dto';
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttempt } from './entities/test-attempt.entity';
 import { UserAnswer } from './entities/user-answer.entity';
+import { getAttemptModules, getRouteForModule1, isAdaptiveTest } from './utils/attempt-modules';
 import { buildScoreDistribution, ScoreDistribution } from './utils/score-distribution';
-import { buildScoreReport, ScoreReport } from './utils/score-test';
+import { buildScoreReport, scoreModule, ScoreReport } from './utils/score-test';
 
 @Injectable()
 export class TestAttemptService {
@@ -115,6 +116,23 @@ export class TestAttemptService {
 
     async advanceModule(attemptId: string, userId: string) {
         const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
+
+        const test = await this.practiceTestRepository.findOneOrFail({
+            where: { id: testAttempt.testId },
+            relations: { sections: { modules: { questions: { answerChoices: true } } } },
+        });
+
+        const finishedModule = getAttemptModules(test, testAttempt.moduleRoutes)[testAttempt.currentModuleIndex];
+
+        // Finishing module 1 decides which module 2 the student gets
+        if (finishedModule && isAdaptiveTest(test) && finishedModule.module.position === 1) {
+            const { correct, total } = scoreModule(finishedModule.module, testAttempt.answers);
+
+            testAttempt.moduleRoutes = {
+                ...testAttempt.moduleRoutes,
+                [finishedModule.sectionName]: getRouteForModule1(correct, total),
+            };
+        }
 
         testAttempt.currentModuleIndex += 1;
         testAttempt.moduleSecondsRemaining = null;
@@ -235,6 +253,7 @@ export class TestAttemptService {
             status: testAttempt.completedAt ? 'completed' : 'in_progress',
             currentModuleIndex: testAttempt.currentModuleIndex,
             moduleSecondsRemaining: testAttempt.moduleSecondsRemaining,
+            moduleRoutes: testAttempt.moduleRoutes,
             answers: testAttempt.answers.map((answer) => ({
                 questionId: answer.questionId,
                 selectedChoiceId: answer.selectedChoiceId,

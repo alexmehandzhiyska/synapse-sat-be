@@ -113,7 +113,7 @@ function computeScaledScore(correct: number, total: number): number {
     return Math.min(800, Math.max(200, Math.round(scaled / 10) * 10));
 }
 
-function scoreModule(module: Module, answers: AttemptAnswer[]): ModuleScore {
+export function scoreModule(module: Module, answers: AttemptAnswer[]): ModuleScore {
     const questions = [...module.questions]
         .sort((a, b) => a.position - b.position)
         .map((question) => buildQuestionResult(question, answers));
