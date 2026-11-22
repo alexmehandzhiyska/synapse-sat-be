@@ -9,6 +9,7 @@ import { Section as SectionEntity } from '../modules/practice-test/entities/sect
 import {
     Difficulty,
     Domain,
+    ModuleVariant,
     Section,
     TestType,
 } from '../modules/practice-test/enums/practice-test.enums';
@@ -34,6 +35,7 @@ type SeedQuestion = {
 type SeedModule = {
     section: Section;
     position: number;
+    variant?: ModuleVariant;
     questions: SeedQuestion[];
 };
 
@@ -208,7 +210,7 @@ const readingWritingModule1: SeedQuestion[] = [
     },
 ];
 
-const readingWritingModule2: SeedQuestion[] = [
+const readingWritingModule2Hard: SeedQuestion[] = [
     {
         domain: Domain.INFORMATION_AND_IDEAS,
         passage: 'A wildlife group reintroduced beavers to a dried-up wetland. Within two years, the beavers\' dams had restored water flow and attracted several bird species that had not been seen in the area for decades.',
@@ -491,7 +493,7 @@ const mathModule1: SeedQuestion[] = [
     },
 ];
 
-const mathModule2: SeedQuestion[] = [
+const mathModule2Hard: SeedQuestion[] = [
     {
         domain: Domain.ALGEBRA,
         prompt: 'If 7x − 2 = 26, what is the value of x?',
@@ -615,11 +617,296 @@ const mathModule2: SeedQuestion[] = [
     },
 ];
 
+const readingWritingModule2Easy: SeedQuestion[] = [
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'Camels can go for days without drinking water. They store fat in their humps, which their bodies can turn into energy when food is scarce.',
+        prompt: 'According to the text, what do camels store in their humps?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Water', false],
+            ['B', 'Fat', true],
+            ['C', 'Muscle', false],
+            ['D', 'Air', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: "The audience was captivated by the singer's voice and stayed silent until the final note.",
+        prompt: 'As used in the text, "captivated" most nearly means',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'held the attention of', true],
+            ['B', 'annoyed', false],
+            ['C', 'confused', false],
+            ['D', 'frightened', false],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'Jamal loves outdoor sports. ___ he plays soccer, goes hiking, and swims in the summer.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'However,', false],
+            ['B', 'Instead,', false],
+            ['C', 'For example,', true],
+            ['D', 'In contrast,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'The children ___ their kites at the beach last weekend.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'fly', false],
+            ['B', 'flies', false],
+            ['C', 'flying', false],
+            ['D', 'flew', true],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'The city added bike lanes to its main streets in 2020. Over the next two years, the number of people biking to work doubled.',
+        prompt: 'Based on the text, what can most reasonably be inferred?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Most people in the city do not own a bike.', false],
+            ['B', 'The city removed its bike lanes in 2022.', false],
+            ['C', 'The new bike lanes may have encouraged more people to bike to work.', true],
+            ['D', 'Fewer people work in the city than before 2020.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'The tiny kitten was fragile, so the vet handled it very gently.',
+        prompt: 'As used in the text, "fragile" most nearly means',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'loud', false],
+            ['B', 'easily hurt', true],
+            ['C', 'playful', false],
+            ['D', 'hungry', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'The teacher gave ___ students extra time to finish the test.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'there', false],
+            ['B', "they're", false],
+            ['C', 'their', true],
+            ['D', 'theirs', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'Bamboo is one of the fastest-growing plants on Earth. Some kinds can grow almost a meter in a single day.',
+        prompt: 'Which choice best states the main idea of the text?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Bamboo can grow very quickly.', true],
+            ['B', 'Bamboo grows only in warm places.', false],
+            ['C', 'Bamboo is the tallest plant on Earth.', false],
+            ['D', 'Bamboo needs a lot of sunlight to survive.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'The first paragraph of a story describes a quiet village at dawn, before anyone has woken up.',
+        prompt: 'The description of the village mainly serves to',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'introduce the main conflict of the story', false],
+            ['B', 'explain why the villagers wake up early', false],
+            ['C', 'compare the village to a nearby city', false],
+            ['D', 'set the scene for the story', true],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'The library is a great place to study. ___ it offers free internet access to all visitors.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'In addition,', true],
+            ['B', 'However,', false],
+            ['C', 'Instead,', false],
+            ['D', 'On the other hand,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'Every morning, my grandfather ___ a walk around the park.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'take', false],
+            ['B', 'takes', true],
+            ['C', 'taking', false],
+            ['D', 'have taken', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: "A researcher claims that dogs can recognize their owners' voices.",
+        prompt: "Which finding, if true, would most directly support the researcher's claim?",
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'Most dogs sleep for more than twelve hours a day.', false],
+            ['B', 'Some dogs are trained to respond to hand signals.', false],
+            ['C', 'Dogs wagged their tails more when they heard recordings of their owners than recordings of strangers.', true],
+            ['D', 'Dogs can hear sounds that humans cannot hear.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'Some people think that cities are too noisy for wildlife. However, many city parks are home to hundreds of kinds of birds and insects.',
+        prompt: 'Which choice best describes the function of the second sentence in the text?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'It challenges the view described in the first sentence.', true],
+            ['B', 'It gives an example that supports the first sentence.', false],
+            ['C', 'It explains why cities are noisy.', false],
+            ['D', 'It lists the birds found in city parks.', false],
+        ],
+    },
+];
+
+const mathModule2Easy: SeedQuestion[] = [
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'If x − 4 = 10, what is the value of x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '6', false],
+            ['B', '10', false],
+            ['C', '14', true],
+            ['D', '40', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'What is the value of 2³?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '5', false],
+            ['B', '6', false],
+            ['C', '9', false],
+            ['D', '8', true],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'A store sells 5 pencils for $1. At this rate, how much do 20 pencils cost?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '$4', true],
+            ['B', '$5', false],
+            ['C', '$20', false],
+            ['D', '$100', false],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'What is the area of a square with a side length of 6?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '12', false],
+            ['B', '36', true],
+            ['C', '24', false],
+            ['D', '6', false],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'If 5x = 35, what is the value of x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '7', true],
+            ['B', '5', false],
+            ['C', '30', false],
+            ['D', '40', false],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'What is the median of 3, 9, 5, 7, and 1?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '3', false],
+            ['B', '7', false],
+            ['C', '9', false],
+            ['D', '5', true],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'Which equation represents the statement "a number n increased by 6 is 15"?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '6n = 15', false],
+            ['B', 'n − 6 = 15', false],
+            ['C', 'n + 6 = 15', true],
+            ['D', 'n = 15 + 6n', false],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'A rectangle has a perimeter of 20 and a length of 6. What is the width of the rectangle?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '8', false],
+            ['B', '4', true],
+            ['C', '14', false],
+            ['D', '10', false],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'A spinner has 4 equal sections numbered 1 to 4. What is the probability that the spinner lands on 3?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '1/3', false],
+            ['B', '3/4', false],
+            ['C', '1/4', true],
+            ['D', '1/2', false],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'If 4x + 2 = 3x + 9, what is the value of x?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', '7', true],
+            ['B', '11', false],
+            ['C', '1', false],
+            ['D', '9', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'Which expression is equivalent to (x + 2)(x + 3)?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'x² + 6', false],
+            ['B', 'x² + 5x + 6', true],
+            ['C', 'x² + 6x + 5', false],
+            ['D', '2x + 5', false],
+        ],
+    },
+];
+
 const modules: SeedModule[] = [
     { section: Section.READING_WRITING, position: 1, questions: readingWritingModule1 },
-    { section: Section.READING_WRITING, position: 2, questions: readingWritingModule2 },
+    { section: Section.READING_WRITING, position: 2, variant: ModuleVariant.EASY, questions: readingWritingModule2Easy },
+    { section: Section.READING_WRITING, position: 2, variant: ModuleVariant.HARD, questions: readingWritingModule2Hard },
     { section: Section.MATH, position: 1, questions: mathModule1 },
-    { section: Section.MATH, position: 2, questions: mathModule2 },
+    { section: Section.MATH, position: 2, variant: ModuleVariant.EASY, questions: mathModule2Easy },
+    { section: Section.MATH, position: 2, variant: ModuleVariant.HARD, questions: mathModule2Hard },
 ];
 
 // `--force` removes the existing diagnostic test and reseeds
@@ -671,6 +958,7 @@ async function seedDiagnosticTest(): Promise<void> {
                     manager.create(Module, {
                         sectionId: section.id,
                         position: moduleData.position,
+                        variant: moduleData.variant ?? null,
                     }),
                 );
 
