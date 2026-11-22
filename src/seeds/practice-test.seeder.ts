@@ -9,6 +9,7 @@ import { Section as SectionEntity } from '../modules/practice-test/entities/sect
 import {
     Difficulty,
     Domain,
+    ModuleVariant,
     Section,
     TestType,
 } from '../modules/practice-test/enums/practice-test.enums';
@@ -34,6 +35,7 @@ type SeedQuestion = {
 type SeedModule = {
     section: Section;
     position: number;
+    variant?: ModuleVariant;
     questions: SeedQuestion[];
 };
 
@@ -364,7 +366,7 @@ const readingWritingModule1: SeedQuestion[] = [
     },
 ];
 
-const readingWritingModule2: SeedQuestion[] = [
+const readingWritingModule2Hard: SeedQuestion[] = [
     {
         domain: Domain.INFORMATION_AND_IDEAS,
         passage: 'A study found that students who take short walks between study sessions remember more of what they learned than those who study continuously.',
@@ -936,7 +938,7 @@ const mathModule1: SeedQuestion[] = [
     },
 ];
 
-const mathModule2: SeedQuestion[] = [
+const mathModule2Hard: SeedQuestion[] = [
     {
         domain: Domain.ALGEBRA,
         prompt: 'If 2x + 3y = 12 and y = 2, what is the value of x?',
@@ -1181,11 +1183,585 @@ const mathModule2: SeedQuestion[] = [
     },
 ];
 
+const readingWritingModule2Easy: SeedQuestion[] = [
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'Honeybees perform a "waggle dance" to tell other bees where flowers are. The direction of the dance shows the direction of the food, and its length shows how far away the food is.',
+        prompt: 'Which choice best states the main idea of the text?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Honeybees use a dance to share the location of food.', true],
+            ['B', 'Honeybees dance only when they are far from the hive.', false],
+            ['C', 'Flowers grow in the direction that honeybees dance.', false],
+            ['D', 'Honeybees cannot find food without other bees.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'The hikers were exhausted after the long climb, so they rested at the summit before heading back down.',
+        prompt: 'As used in the text, "exhausted" most nearly means',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'excited', false],
+            ['B', 'very tired', true],
+            ['C', 'lost', false],
+            ['D', 'hungry', false],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'Marco wanted to buy a new bike. ___ he saved money from his summer job for three months.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Therefore,', true],
+            ['B', 'However,', false],
+            ['C', 'For example,', false],
+            ['D', 'In contrast,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'The dogs in the yard ___ barking loudly at the mail carrier.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'is', false],
+            ['B', 'are', true],
+            ['C', 'was', false],
+            ['D', 'be', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'Maya planted tomatoes in two garden beds. She watered one bed every day and the other once a week. By the end of the summer, the bed she watered daily had produced twice as many tomatoes.',
+        prompt: 'Based on the text, what can most reasonably be concluded?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Tomatoes grow best when they are never watered.', false],
+            ['B', 'Maya prefers the first garden bed to the second.', false],
+            ['C', 'How often the plants were watered likely affected how many tomatoes they produced.', true],
+            ['D', 'Both garden beds produced the same number of tomatoes.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'The soup was so bland that the diners asked for salt and pepper.',
+        prompt: 'As used in the text, "bland" most nearly means',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'too hot', false],
+            ['B', 'expensive', false],
+            ['C', 'colorful', false],
+            ['D', 'lacking flavor', true],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'The museum was closed on Monday. ___ we spent the afternoon at the park.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'For example,', false],
+            ['B', 'As a result,', true],
+            ['C', 'Similarly,', false],
+            ['D', 'In addition,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'My sister and ___ went to the concert last night.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'me', false],
+            ['B', 'myself', false],
+            ['C', 'I', true],
+            ['D', 'us', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'The town library extended its hours last spring. Since then, the number of visitors each month has risen by nearly a third, with the largest increase on weekday evenings.',
+        prompt: 'According to the text, when did the library see the largest increase in visitors?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'On weekend mornings', false],
+            ['B', 'On weekday evenings', true],
+            ['C', 'During the winter', false],
+            ['D', 'Before the hours were extended', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'The new bridge is sturdy enough to support dozens of heavy trucks at once.',
+        prompt: 'As used in the text, "sturdy" most nearly means',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'strong', true],
+            ['B', 'narrow', false],
+            ['C', 'modern', false],
+            ['D', 'crowded', false],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'Owls hunt mostly at night. ___ hawks hunt mostly during the day.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Therefore,', false],
+            ['B', 'For instance,', false],
+            ['C', 'In contrast,', true],
+            ['D', 'Likewise,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'Yesterday, the students ___ a short play about the ocean for their parents.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'perform', false],
+            ['B', 'performs', false],
+            ['C', 'will perform', false],
+            ['D', 'performed', true],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'Sea otters often float on their backs and use rocks to crack open shellfish. Some otters even keep a favorite rock in a pouch of loose skin under their arm.',
+        prompt: 'Which choice best describes a detail mentioned in the text?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Sea otters eat only fish.', false],
+            ['B', 'Sea otters build nests out of rocks.', false],
+            ['C', 'Sea otters swim only on their stomachs.', false],
+            ['D', 'Some sea otters store a rock under their arm.', true],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'Lena was reluctant to jump into the cold lake, so she stood on the dock for several minutes.',
+        prompt: 'As used in the text, "reluctant" most nearly means',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'eager', false],
+            ['B', 'able', false],
+            ['C', 'unwilling', true],
+            ['D', 'proud', false],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'Apples come in many varieties. ___ Granny Smith apples are green and sour, while Fuji apples are red and sweet.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'For instance,', true],
+            ['B', 'However,', false],
+            ['C', 'Finally,', false],
+            ['D', 'As a result,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'After dinner, the cat licked ___ paw and fell asleep by the window.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', "it's", false],
+            ['B', 'its', true],
+            ['C', "its'", false],
+            ['D', 'their', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'The Great Wall of China was built over many centuries by different dynasties. Its main purpose was to protect against invasions from the north.',
+        prompt: 'According to the text, what was the main purpose of the Great Wall of China?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'To mark the border between two dynasties', false],
+            ['B', 'To attract visitors from other countries', false],
+            ['C', 'To protect against invasions from the north', true],
+            ['D', 'To store food during long winters', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'In her story, the author describes the old lighthouse as "a lonely guardian of the coast."',
+        prompt: 'The phrase "a lonely guardian of the coast" mainly serves to',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'explain how the lighthouse was built', false],
+            ['B', 'present the lighthouse as a solitary protector', true],
+            ['C', 'suggest that the lighthouse is no longer used', false],
+            ['D', 'compare the lighthouse to other buildings', false],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'First, preheat the oven. ___ mix the flour and sugar in a large bowl.',
+        prompt: 'Which choice completes the text with the most logical transition?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'In conclusion,', false],
+            ['B', 'Next,', true],
+            ['C', 'However,', false],
+            ['D', 'For example,', false],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'The book on the top shelf ___ to my older brother.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'belongs', true],
+            ['B', 'belong', false],
+            ['C', 'are belonging', false],
+            ['D', 'have belonged', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'Penguins cannot fly, but they are excellent swimmers. Over time, their wings have become stiff flippers that help them move quickly through water.',
+        prompt: 'Which choice best states the main idea of the text?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'Penguins spend most of their time on land.', false],
+            ['B', "Penguins' wings are suited to swimming rather than flying.", true],
+            ['C', 'Penguins are the fastest animals in the ocean.', false],
+            ['D', 'Penguins once used their wings to fly long distances.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'Scientists once believed that all dinosaurs were slow and cold-blooded. Today, many researchers think that some dinosaurs were fast and warm-blooded.',
+        prompt: 'Which choice best describes the function of the second sentence in the text?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'It gives an example of a slow dinosaur.', false],
+            ['B', 'It explains how dinosaurs became extinct.', false],
+            ['C', 'It repeats the belief stated in the first sentence.', false],
+            ['D', 'It presents a view that differs from an earlier belief.', true],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'The rain ___ the sun came out over the hills.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', 'stopped, and', true],
+            ['B', 'stopped,', false],
+            ['C', 'stopped and,', false],
+            ['D', 'stopped; and', false],
+        ],
+    },
+    {
+        domain: Domain.INFORMATION_AND_IDEAS,
+        passage: 'A student claims that reading for 20 minutes a day helps students learn new words.',
+        prompt: "Which finding, if true, would most directly support the student's claim?",
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'Students who read for 20 minutes a day for a year learned more new words than students who did not.', true],
+            ['B', 'Most students prefer reading fiction to reading nonfiction.', false],
+            ['C', 'Some students read for more than an hour a day.', false],
+            ['D', 'Libraries lend more books during the summer than during the school year.', false],
+        ],
+    },
+    {
+        domain: Domain.CRAFT_AND_STRUCTURE,
+        passage: 'Although the forecast predicted heavy rain, the afternoon turned out to be sunny and warm.',
+        prompt: 'Which choice best describes the overall structure of the text?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'It lists several causes of a weather event.', false],
+            ['B', 'It compares two different forecasts.', false],
+            ['C', 'It presents an expectation and then describes what actually happened.', true],
+            ['D', 'It explains why weather forecasts are often wrong.', false],
+        ],
+    },
+    {
+        domain: Domain.EXPRESSION_OF_IDEAS,
+        passage: 'While researching a topic, a student has taken the following notes:\n• The Nile River is about 6,650 km long.\n• The Amazon River is about 6,400 km long.\nThe student wants to compare the lengths of the two rivers.',
+        prompt: 'Which choice most effectively uses relevant information from the notes to accomplish this goal?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'The Nile and the Amazon are two of the longest rivers in the world.', false],
+            ['B', 'The Amazon River is about 6,400 km long.', false],
+            ['C', 'Both rivers are home to many kinds of fish.', false],
+            ['D', 'At about 6,650 km, the Nile is slightly longer than the Amazon, which is about 6,400 km.', true],
+        ],
+    },
+    {
+        domain: Domain.STANDARD_ENGLISH_CONVENTIONS,
+        passage: 'We visited three cities on our ___ Rome, and Madrid.',
+        prompt: 'Which choice completes the text so that it conforms to the conventions of Standard English?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', 'trip: Paris,', true],
+            ['B', 'trip; Paris,', false],
+            ['C', 'trip, Paris,', false],
+            ['D', 'trip. Paris,', false],
+        ],
+    },
+];
+
+const mathModule2Easy: SeedQuestion[] = [
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'If x + 5 = 12, what is the value of x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '5', false],
+            ['B', '7', true],
+            ['C', '12', false],
+            ['D', '17', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'What is the value of 3² + 4?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '10', false],
+            ['B', '13', true],
+            ['C', '16', false],
+            ['D', '49', false],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'What is the mean of 4, 6, and 8?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '4', false],
+            ['B', '5', false],
+            ['C', '6', true],
+            ['D', '18', false],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'A rectangle has a length of 8 and a width of 3. What is the area of the rectangle?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '11', false],
+            ['B', '22', false],
+            ['C', '24', true],
+            ['D', '32', false],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'If 3x = 21, what is the value of x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '3', false],
+            ['B', '6', false],
+            ['C', '7', true],
+            ['D', '18', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'The function f is defined by f(x) = x + 4. What is the value of f(2)?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '2', false],
+            ['B', '4', false],
+            ['C', '6', true],
+            ['D', '8', false],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'A shirt costs $20 and is on sale for 10% off. What is the sale price of the shirt?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '$18', true],
+            ['B', '$2', false],
+            ['C', '$10', false],
+            ['D', '$19', false],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'What is the perimeter of a square with a side length of 5?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '10', false],
+            ['B', '20', true],
+            ['C', '25', false],
+            ['D', '15', false],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'A taxi charges $3 plus $2 per mile. Which expression gives the total cost, in dollars, of a ride of m miles?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '3m + 2', false],
+            ['B', '2m + 3', true],
+            ['C', '5m', false],
+            ['D', '3 + m', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'Which expression is equivalent to 2(x + 3)?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '2x + 6', true],
+            ['B', '2x + 3', false],
+            ['C', 'x + 6', false],
+            ['D', '2x + 5', false],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'What is 25% of 80?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '25', false],
+            ['B', '20', true],
+            ['C', '40', false],
+            ['D', '60', false],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'Two angles of a triangle measure 50° and 60°. What is the measure of the third angle?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '70°', true],
+            ['B', '80°', false],
+            ['C', '90°', false],
+            ['D', '110°', false],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'What is the slope of the line y = 4x − 1?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '−1', false],
+            ['B', '1', false],
+            ['C', '3', false],
+            ['D', '4', true],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'If x² = 25 and x > 0, what is the value of x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '2.5', false],
+            ['B', '10', false],
+            ['C', '12.5', false],
+            ['D', '5', true],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'A bag contains 3 red marbles and 7 blue marbles. If one marble is chosen at random, what is the probability that it is red?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '3/7', false],
+            ['B', '7/10', false],
+            ['C', '3/10', true],
+            ['D', '1/3', false],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'A circle has a radius of 3. What is the diameter of the circle?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '1.5', false],
+            ['B', '3', false],
+            ['C', '9', false],
+            ['D', '6', true],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'If 2x − 3 = 9, what is the value of x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '6', true],
+            ['B', '3', false],
+            ['C', '9', false],
+            ['D', '12', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'Which expression is equivalent to x · x · x?',
+        difficulty: Difficulty.EASY,
+        choices: [
+            ['A', '3x', false],
+            ['B', 'x³', true],
+            ['C', 'x + 3', false],
+            ['D', '3 + x', false],
+        ],
+    },
+    {
+        domain: Domain.ALGEBRA,
+        prompt: 'Which point lies on the line y = 2x + 1?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', '(2, 4)', false],
+            ['B', '(0, 2)', false],
+            ['C', '(1, 3)', true],
+            ['D', '(3, 6)', false],
+        ],
+    },
+    {
+        domain: Domain.ADVANCED_MATH,
+        prompt: 'The function g is defined by g(x) = x² + 1. What is the value of g(4)?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', '9', false],
+            ['B', '16', false],
+            ['C', '17', true],
+            ['D', '25', false],
+        ],
+    },
+    {
+        domain: Domain.PROBLEM_SOLVING_AND_DATA_ANALYSIS,
+        prompt: 'A recipe uses 2 cups of flour for every 3 cups of milk. How many cups of flour are needed for 9 cups of milk?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', '3', false],
+            ['B', '4', false],
+            ['C', '18', false],
+            ['D', '6', true],
+        ],
+    },
+    {
+        domain: Domain.GEOMETRY_AND_TRIGONOMETRY,
+        prompt: 'A right triangle has legs of length 6 and 8. What is the length of the hypotenuse?',
+        difficulty: Difficulty.MEDIUM,
+        choices: [
+            ['A', '7', false],
+            ['B', '10', true],
+            ['C', '14', false],
+            ['D', '48', false],
+        ],
+    },
+];
+
 const modules: SeedModule[] = [
     { section: Section.READING_WRITING, position: 1, questions: readingWritingModule1 },
-    { section: Section.READING_WRITING, position: 2, questions: readingWritingModule2 },
+    { section: Section.READING_WRITING, position: 2, variant: ModuleVariant.EASY, questions: readingWritingModule2Easy },
+    { section: Section.READING_WRITING, position: 2, variant: ModuleVariant.HARD, questions: readingWritingModule2Hard },
     { section: Section.MATH, position: 1, questions: mathModule1 },
-    { section: Section.MATH, position: 2, questions: mathModule2 },
+    { section: Section.MATH, position: 2, variant: ModuleVariant.EASY, questions: mathModule2Easy },
+    { section: Section.MATH, position: 2, variant: ModuleVariant.HARD, questions: mathModule2Hard },
 ];
 
 // `--force` removes the existing practice test and reseeds
@@ -1237,6 +1813,7 @@ async function seedPracticeTest(): Promise<void> {
                     manager.create(Module, {
                         sectionId: section.id,
                         position: moduleData.position,
+                        variant: moduleData.variant ?? null,
                     }),
                 );
 
