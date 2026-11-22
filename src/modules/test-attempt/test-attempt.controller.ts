@@ -13,6 +13,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 import { CreateTestAttemptDto } from './dto/create-test-attempt.dto';
+import { UpdateTimeRemainingDto } from './dto/update-time-remaining.dto';
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttemptService } from './test-attempt.service';
 
@@ -55,6 +56,16 @@ export class TestAttemptController {
         @Req() req: AuthenticatedRequest,
     ) {
         return this.testAttemptService.upsertAnswer(attemptId, questionId, dto, req.user.userId);
+    }
+
+    @Put(':attemptId/time-remaining')
+    @HttpCode(204)
+    updateTimeRemaining(
+        @Param('attemptId') attemptId: string,
+        @Body() dto: UpdateTimeRemainingDto,
+        @Req() req: AuthenticatedRequest,
+    ) {
+        return this.testAttemptService.updateTimeRemaining(attemptId, dto, req.user.userId);
     }
 
     @Post(':attemptId/advance-module')

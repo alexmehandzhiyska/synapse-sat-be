@@ -5,6 +5,7 @@ import { In, IsNull, Not, Repository } from 'typeorm';
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
 import { Domain, TestType } from '../practice-test/enums/practice-test.enums';
 
+import { UpdateTimeRemainingDto } from './dto/update-time-remaining.dto';
 import { UpsertAnswerDto } from './dto/upsert-answer.dto';
 import { TestAttempt } from './entities/test-attempt.entity';
 import { UserAnswer } from './entities/user-answer.entity';
@@ -116,9 +117,17 @@ export class TestAttemptService {
         const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
 
         testAttempt.currentModuleIndex += 1;
+        testAttempt.moduleSecondsRemaining = null;
         await this.testAttemptRepository.save(testAttempt);
 
         return this.toAttemptResponse(testAttempt);
+    }
+
+    async updateTimeRemaining(attemptId: string, dto: UpdateTimeRemainingDto, userId: string): Promise<void> {
+        const testAttempt = await this.getOwnedAttemptOrThrow(attemptId, userId);
+
+        testAttempt.moduleSecondsRemaining = dto.secondsRemaining;
+        await this.testAttemptRepository.save(testAttempt);
     }
 
     async submit(attemptId: string, userId: string) {
@@ -225,6 +234,7 @@ export class TestAttemptService {
             testId: testAttempt.testId,
             status: testAttempt.completedAt ? 'completed' : 'in_progress',
             currentModuleIndex: testAttempt.currentModuleIndex,
+            moduleSecondsRemaining: testAttempt.moduleSecondsRemaining,
             answers: testAttempt.answers.map((answer) => ({
                 questionId: answer.questionId,
                 selectedChoiceId: answer.selectedChoiceId,
