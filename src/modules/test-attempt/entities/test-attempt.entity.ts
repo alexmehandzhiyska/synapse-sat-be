@@ -46,6 +46,9 @@ export class TestAttempt {
     @Column({ name: 'current_module_index', type: 'int', default: 0 })
     currentModuleIndex: number;
 
+    @Column({ name: 'module_seconds_remaining', type: 'int', nullable: true })
+    moduleSecondsRemaining: number | null;
+
     @OneToMany(() => UserAnswer, (answer) => answer.testAttempt)
     answers: UserAnswer[];
 }
