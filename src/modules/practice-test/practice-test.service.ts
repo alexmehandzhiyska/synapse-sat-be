@@ -13,7 +13,7 @@ import { Module } from './entities/module.entity';
 import { PracticeTest } from './entities/practice-test.entity';
 import { Question } from './entities/question.entity';
 import { Section } from './entities/section.entity';
-import { QuestionStatusFilter, Section as SectionName, TestType } from './enums/practice-test.enums';
+import { ModuleVariant, QuestionStatusFilter, Section as SectionName, TestType } from './enums/practice-test.enums';
 import { toFullPracticeTestResponse } from './mappers/practice-test.mapper';
 import { getSectionForDomain } from './utils/domain-section';
 import { shuffle } from './utils/shuffle';
@@ -58,7 +58,12 @@ export class PracticeTestService {
             }]
             : Object.values(SectionName).map((name) => ({
                 name,
-                modules: [{ position: 1 }, { position: 2 }],
+                // Module 2 has an easy and a hard version - the student gets one based on how they did on module 1
+                modules: [
+                    { position: 1 },
+                    { position: 2, variant: ModuleVariant.EASY },
+                    { position: 2, variant: ModuleVariant.HARD },
+                ],
             }));
 
         const test = this.practiceTestRepository.create({
@@ -240,6 +245,7 @@ export class PracticeTestService {
                 sections: {
                     modules: {
                         position: 'ASC',
+                        variant: 'ASC',
                         questions: {
                             position: 'ASC',
                             answerChoices: { label: 'ASC' },

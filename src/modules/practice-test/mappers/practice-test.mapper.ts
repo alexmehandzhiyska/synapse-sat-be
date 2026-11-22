@@ -31,6 +31,7 @@ function toModuleResponse(module: Module, section: Section, includeCorrectness: 
     return {
         id: module.id,
         position: module.position,
+        variant: module.variant,
         questions: module.questions.map((question) => toQuestionResponse(question, includeCorrectness)),
     };
 }
