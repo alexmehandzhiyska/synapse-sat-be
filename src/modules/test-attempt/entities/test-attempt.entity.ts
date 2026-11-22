@@ -10,6 +10,7 @@ import {
 
 import { User } from '../../auth/entities/user.entity';
 import { PracticeTest } from '../../practice-test/entities/practice-test.entity';
+import { ModuleVariant, Section } from '../../practice-test/enums/practice-test.enums';
 import { UserAnswer } from './user-answer.entity';
 
 
@@ -48,6 +49,10 @@ export class TestAttempt {
 
     @Column({ name: 'module_seconds_remaining', type: 'int', nullable: true })
     moduleSecondsRemaining: number | null;
+
+    // Which module 2 the student was routed to in each section, decided when they finish module 1
+    @Column({ name: 'module_routes', type: 'jsonb', default: () => `'{}'` })
+    moduleRoutes: Partial<Record<Section, ModuleVariant>>;
 
     @OneToMany(() => UserAnswer, (answer) => answer.testAttempt)
     answers: UserAnswer[];

@@ -8,7 +8,8 @@
         "allowSyntheticDefaultImports": true,
         "target": "ES2021",
         "types": [
-            "jest"
+            "jest",
+            "node"
         ],
         "typeRoots": [
             "./types",

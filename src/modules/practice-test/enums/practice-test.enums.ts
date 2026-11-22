@@ -22,6 +22,12 @@ export enum Difficulty {
     HARD = 'hard',
 }
 
+// Which version of module 2 a full test serves based on how the student did on module 1
+export enum ModuleVariant {
+    EASY = 'easy',
+    HARD = 'hard',
+}
+
 export enum Domain {
     INFORMATION_AND_IDEAS = 'information_and_ideas',
     CRAFT_AND_STRUCTURE = 'craft_and_structure',
