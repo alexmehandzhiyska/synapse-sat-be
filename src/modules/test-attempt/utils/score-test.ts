@@ -3,7 +3,16 @@ import { Module } from '../../practice-test/entities/module.entity';
 import { PracticeTest } from '../../practice-test/entities/practice-test.entity';
 import { Question } from '../../practice-test/entities/question.entity';
 import { Section as SectionEntity } from '../../practice-test/entities/section.entity';
-import { Difficulty, Domain, Section, TestType } from '../../practice-test/enums/practice-test.enums';
+import { Difficulty, Domain, ModuleVariant, Section, TestType } from '../../practice-test/enums/practice-test.enums';
+
+import { getAttemptModules, isAdaptiveTest, ModuleRoutes } from './attempt-modules';
+
+// Harder questions count for more in adaptive tests, so the easy route can't reach the top scores
+const DIFFICULTY_WEIGHTS: Record<Difficulty, number> = {
+    [Difficulty.EASY]: 1,
+    [Difficulty.MEDIUM]: 2,
+    [Difficulty.HARD]: 3,
+};
 
 type QuestionStatus = 'correct' | 'incorrect' | 'omitted';
 
@@ -33,6 +42,7 @@ interface QuestionResult {
 
 interface ModuleScore {
     position: number;
+    variant: ModuleVariant | null;
     correct: number;
     incorrect: number;
     omitted: number;
@@ -120,6 +130,7 @@ export function scoreModule(module: Module, answers: AttemptAnswer[]): ModuleSco
 
     return {
         position: module.position,
+        variant: module.variant,
         correct: questions.filter((question) => question.status === 'correct').length,
         incorrect: questions.filter((question) => question.status === 'incorrect').length,
         omitted: questions.filter((question) => question.status === 'omitted').length,
@@ -149,19 +160,47 @@ function scoreDomains(questions: Question[], answers: AttemptAnswer[]): DomainSc
     return [...domainTotals.values()];
 }
 
-function scoreSection(section: SectionEntity, answers: AttemptAnswer[]): SectionScore {
-    const orderedModules = [...section.modules].sort((a, b) => a.position - b.position);
-    const modules = orderedModules.map((module) => scoreModule(module, answers));
-    const questions = orderedModules.flatMap((module) => module.questions);
+function getTotalWeight(questions: Question[]): number {
+    return questions.reduce((sum, question) => sum + DIFFICULTY_WEIGHTS[question.difficulty], 0);
+}
+
+// Highest weighted score possible: module 1 plus the heavier module 2 (the hard route)
+function getMaxSectionWeight(section: SectionEntity): number {
+    const module1Weight = getTotalWeight(
+        section.modules.filter((module) => module.position === 1).flatMap((module) => module.questions),
+    );
+    
+    // The highest weighted score possible in a section: module 1 plus the heavier module 2 
+    // (normally the hard one, but a teacher may not have filled it in yet or made a mistake)
+    const module2Weights = section.modules
+        .filter((module) => module.position === 2)
+        .map((module) => getTotalWeight(module.questions));
+
+    return module1Weight + Math.max(...module2Weights);
+}
+
+function scoreSection(
+    section: SectionEntity,
+    modulesTaken: Module[],
+    answers: AttemptAnswer[],
+    isAdaptive: boolean,
+): SectionScore {
+    const modules = modulesTaken.map((module) => scoreModule(module, answers));
+    const questions = modulesTaken.flatMap((module) => module.questions);
 
     const raw = modules.reduce((sum, module) => sum + module.correct, 0);
     const total = modules.reduce((sum, module) => sum + module.total, 0);
+
+    const correctQuestions = questions.filter((question) => getQuestionStatus(question, answers) === 'correct');
+    const scaled = isAdaptive
+        ? computeScaledScore(getTotalWeight(correctQuestions), getMaxSectionWeight(section))
+        : computeScaledScore(raw, total);
 
     return {
         name: section.name,
         raw,
         total,
-        scaled: computeScaledScore(raw, total),
+        scaled,
         modules,
         domains: scoreDomains(questions, answers),
     };
@@ -171,12 +210,24 @@ export function buildScoreReport(
     attemptId: string,
     test: PracticeTest,
     answers: AttemptAnswer[],
+    moduleRoutes: ModuleRoutes,
 ): ScoreReport {
+    const attemptModules = getAttemptModules(test, moduleRoutes);
+
     const sections = SECTION_ORDER.map((sectionName) =>
         test.sections.find((section) => section.name === sectionName),
     )
         .filter((section): section is SectionEntity => section != null)
-        .map((section) => scoreSection(section, answers));
+        .map((section) =>
+            scoreSection(
+                section,
+                attemptModules
+                    .filter((moduleWithSection) => moduleWithSection.sectionName === section.name)
+                    .map((moduleWithSection) => moduleWithSection.module),
+                answers,
+                isAdaptiveTest(test),
+            ),
+        );
 
     const totalRaw = sections.reduce((sum, section) => sum + section.raw, 0);
     const totalScaled = sections.reduce((sum, section) => sum + section.scaled, 0);

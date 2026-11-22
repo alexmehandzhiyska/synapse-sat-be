@@ -46,7 +46,7 @@ export class TestAttemptService {
                     relations: { sections: { modules: { questions: { answerChoices: true } } } },
                 });
 
-                const scoreReport = buildScoreReport(testAttempt.id, test, testAttempt.answers);
+                const scoreReport = buildScoreReport(testAttempt.id, test, testAttempt.answers, testAttempt.moduleRoutes);
 
                 return {
                     id: testAttempt.id,
@@ -167,7 +167,7 @@ export class TestAttemptService {
             relations: { sections: { modules: { questions: { answerChoices: true } } } },
         });
 
-        return buildScoreReport(testAttempt.id, test, testAttempt.answers);
+        return buildScoreReport(testAttempt.id, test, testAttempt.answers, testAttempt.moduleRoutes);
     }
 
     async getScoreDistribution(attemptId: string, userId: string): Promise<ScoreDistribution> {
@@ -184,10 +184,15 @@ export class TestAttemptService {
         });
 
         const scores = completedAttempts.map(
-            (attempt) => buildScoreReport(attempt.id, test, attempt.answers).totalScaled,
+            (attempt) => buildScoreReport(attempt.id, test, attempt.answers, attempt.moduleRoutes).totalScaled,
         );
 
-        const userScore = buildScoreReport(testAttempt.id, test, testAttempt.answers).totalScaled;
+        const userScore = buildScoreReport(
+            testAttempt.id,
+            test,
+            testAttempt.answers,
+            testAttempt.moduleRoutes,
+        ).totalScaled;
 
         return buildScoreDistribution(scores, userScore);
     }
@@ -209,7 +214,7 @@ export class TestAttemptService {
             relations: { sections: { modules: { questions: { answerChoices: true } } } },
         });
 
-        const scoreReport = buildScoreReport(attempt.id, test, attempt.answers);
+        const scoreReport = buildScoreReport(attempt.id, test, attempt.answers, attempt.moduleRoutes);
         const accuracy = new Map<Domain, number>();
 
         for (const section of scoreReport.sections) {
