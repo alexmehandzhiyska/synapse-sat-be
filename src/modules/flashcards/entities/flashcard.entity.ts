@@ -43,6 +43,14 @@ export class Flashcard {
     @Column({ type: 'text', nullable: true })
     context: string | null;
 
+    // Days until the next review; 0 means card hasn'e been reviewed yet
+    @Column({ name: 'interval_days', type: 'int', default: 0 })
+    intervalDays: number;
+
+    // New cards are due straight away
+    @Column({ name: 'due_at', type: 'timestamptz', default: () => 'now()' })
+    dueAt: Date;
+
     @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
     createdAt: Date;
 
