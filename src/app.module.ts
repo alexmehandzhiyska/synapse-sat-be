@@ -10,6 +10,7 @@ import { StudyPlanModule } from './modules/study-plan/study-plan.module';
 import { UsersModule } from './modules/users/users.module';
 import { NotebookModule } from './modules/notebook/notebook.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
+import { FlashcardsModule } from './modules/flashcards/flashcards.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { LessonsModule } from './modules/lessons/lessons.module';
     StudyPlanModule,
     UsersModule,
     NotebookModule,
-    LessonsModule
+    LessonsModule,
+    FlashcardsModule
   ],
   controllers: [AppController],
   providers: [AppService],
