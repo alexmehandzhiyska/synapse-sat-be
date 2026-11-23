@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 
 import { StudentGuard } from '../auth/guards/student.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
+import { ReviewFlashcardDto } from './dto/review-flashcard.dto';
 import { FlashcardsService } from './flashcards.service';
 
 @UseGuards(StudentGuard)
@@ -23,5 +24,10 @@ export class FlashcardsController {
     @Post()
     create(@Body() createFlashcardDto: CreateFlashcardDto, @Req() req: AuthenticatedRequest) {
         return this.flashcardsService.create(req.user.userId, createFlashcardDto);
+    }
+
+    @Patch(':id/review')
+    review(@Param('id') id: string, @Body() reviewFlashcardDto: ReviewFlashcardDto, @Req() req: AuthenticatedRequest) {
+        return this.flashcardsService.review(req.user.userId, id, reviewFlashcardDto);
     }
 }

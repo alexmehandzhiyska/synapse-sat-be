@@ -1,11 +1,25 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
+import { ReviewFlashcardDto } from './dto/review-flashcard.dto';
 import { Flashcard } from './entities/flashcard.entity';
+import { FlashcardRating } from './enums/flashcard-rating.enum';
 
 const DICTIONARY_API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en';
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const FORGOT_INTERVAL_DAYS = 1;
+const FIRST_KNEW_IT_INTERVAL_DAYS = 3;
+
+export function getNextIntervalDays(currentIntervalDays: number, rating: FlashcardRating): number {
+    if (rating === FlashcardRating.FORGOT) {
+        return FORGOT_INTERVAL_DAYS;
+    }
+
+    return currentIntervalDays === 0 ? FIRST_KNEW_IT_INTERVAL_DAYS : currentIntervalDays * 2;
+}
 
 // The part of the Free Dictionary API response the suggestion is taken from
 interface DictionaryEntry {
@@ -45,6 +59,19 @@ export class FlashcardsService {
             context: createFlashcardDto.context ?? null,
             questionId: createFlashcardDto.questionId ?? null,
         });
+
+        return this.flashcardRepository.save(flashcard);
+    }
+
+    async review(userId: string, id: string, reviewFlashcardDto: ReviewFlashcardDto): Promise<Flashcard> {
+        const flashcard = await this.flashcardRepository.findOne({ where: { id, userId } });
+
+        if (!flashcard) {
+            throw new NotFoundException(`Flashcard ${id} not found.`);
+        }
+
+        flashcard.intervalDays = getNextIntervalDays(flashcard.intervalDays, reviewFlashcardDto.rating);
+        flashcard.dueAt = new Date(Date.now() + flashcard.intervalDays * MS_PER_DAY);
 
         return this.flashcardRepository.save(flashcard);
     }
