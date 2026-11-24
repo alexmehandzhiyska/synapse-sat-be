@@ -63,6 +63,14 @@ export class FlashcardsService {
         return this.flashcardRepository.save(flashcard);
     }
 
+    async delete(userId: string, id: string): Promise<void> {
+        const result = await this.flashcardRepository.delete({ id, userId });
+
+        if (result.affected === 0) {
+            throw new NotFoundException(`Flashcard ${id} not found.`);
+        }
+    }
+
     async review(userId: string, id: string, reviewFlashcardDto: ReviewFlashcardDto): Promise<Flashcard> {
         const flashcard = await this.flashcardRepository.findOne({ where: { id, userId } });
 

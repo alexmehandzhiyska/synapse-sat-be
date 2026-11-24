@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 
 import { StudentGuard } from '../auth/guards/student.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
@@ -29,5 +29,10 @@ export class FlashcardsController {
     @Patch(':id/review')
     review(@Param('id') id: string, @Body() reviewFlashcardDto: ReviewFlashcardDto, @Req() req: AuthenticatedRequest) {
         return this.flashcardsService.review(req.user.userId, id, reviewFlashcardDto);
+    }
+
+    @Delete(':id')
+    delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+        return this.flashcardsService.delete(req.user.userId, id);
     }
 }
