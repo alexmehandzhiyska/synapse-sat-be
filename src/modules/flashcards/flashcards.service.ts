@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { ReviewFlashcardDto } from './dto/review-flashcard.dto';
+import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
 import { Flashcard } from './entities/flashcard.entity';
 import { FlashcardRating } from './enums/flashcard-rating.enum';
 
@@ -59,6 +60,18 @@ export class FlashcardsService {
             context: createFlashcardDto.context ?? null,
             questionId: createFlashcardDto.questionId ?? null,
         });
+
+        return this.flashcardRepository.save(flashcard);
+    }
+
+    async update(userId: string, id: string, updateFlashcardDto: UpdateFlashcardDto): Promise<Flashcard> {
+        const flashcard = await this.flashcardRepository.findOne({ where: { id, userId } });
+
+        if (!flashcard) {
+            throw new NotFoundException(`Flashcard ${id} not found.`);
+        }
+
+        flashcard.definition = updateFlashcardDto.definition;
 
         return this.flashcardRepository.save(flashcard);
     }

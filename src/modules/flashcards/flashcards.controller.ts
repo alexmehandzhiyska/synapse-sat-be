@@ -4,6 +4,7 @@ import { StudentGuard } from '../auth/guards/student.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { ReviewFlashcardDto } from './dto/review-flashcard.dto';
+import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
 import { FlashcardsService } from './flashcards.service';
 
 @UseGuards(StudentGuard)
@@ -29,6 +30,11 @@ export class FlashcardsController {
     @Patch(':id/review')
     review(@Param('id') id: string, @Body() reviewFlashcardDto: ReviewFlashcardDto, @Req() req: AuthenticatedRequest) {
         return this.flashcardsService.review(req.user.userId, id, reviewFlashcardDto);
+    }
+
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateFlashcardDto: UpdateFlashcardDto, @Req() req: AuthenticatedRequest) {
+        return this.flashcardsService.update(req.user.userId, id, updateFlashcardDto);
     }
 
     @Delete(':id')
