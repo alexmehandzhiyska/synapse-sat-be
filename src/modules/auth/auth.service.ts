@@ -18,7 +18,7 @@ export class AuthService {
     rounds: number = 10;
     private readonly logger = new Logger(AuthService.name);
     private readonly RESET_CODE_TTL_MS = 15 * 60 * 1000;
-    private readonly ACCESS_TOKEN_TTL = '1h';
+    private readonly ACCESS_TOKEN_TTL = '3h';
 
     constructor(
         @InjectRepository(User) private readonly usersRepository: Repository<User>,
