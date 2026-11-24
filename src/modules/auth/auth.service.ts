@@ -18,6 +18,7 @@ export class AuthService {
     rounds: number = 10;
     private readonly logger = new Logger(AuthService.name);
     private readonly RESET_CODE_TTL_MS = 15 * 60 * 1000;
+    private readonly ACCESS_TOKEN_TTL = '1h';
 
     constructor(
         @InjectRepository(User) private readonly usersRepository: Repository<User>,
@@ -236,7 +237,8 @@ export class AuthService {
         const payload = { sub: userId, email, role };
 
         const accessToken = await this.jwtService.signAsync(payload, {
-            secret: process.env.JWT_ACCESS_SECRET
+            secret: process.env.JWT_ACCESS_SECRET,
+            expiresIn: this.ACCESS_TOKEN_TTL
         });
 
         return { accessToken };
