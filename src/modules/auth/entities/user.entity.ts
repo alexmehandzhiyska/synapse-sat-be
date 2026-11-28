@@ -17,22 +17,22 @@ export class User {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
+    @Column({ name: 'first_name' })
     firstName: string;
 
-    @Column()
+    @Column({ name: 'last_name' })
     lastName: string;
 
     @Column({ unique: true })
     email: string;
 
-    @Column()
+    @Column({ name: 'password_hash' })
     passwordHash: string;
 
-    @Column({ nullable: true })
+    @Column({ name: 'reset_code_hash', nullable: true })
     resetCodeHash: string | null;
 
-    @Column({ type: 'timestamp', nullable: true })
+    @Column({ name: 'reset_code_expires_at', type: 'timestamp', nullable: true })
     resetCodeExpiresAt: Date | null;
 
     @Column({ nullable: true })
@@ -47,12 +47,12 @@ export class User {
     @Column({ type: 'enum', enum: UserRole, default: UserRole.STUDENT })
     role: UserRole;
 
-    @Column({ default: true })
+    @Column({ name: 'is_active', default: true })
     isActive: boolean;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 }
