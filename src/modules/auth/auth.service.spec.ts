@@ -151,6 +151,15 @@ describe('AuthService', () => {
                 } as any),
             ).rejects.toThrow('This account has been deactivated.');
         });
+
+        it('hides deactivation for wrong password', async () => {
+            const passwordHash = await bcrypt.hash('asdasdasd1!', 10);
+            usersRepository.findOne!.mockResolvedValue(buildUser({ passwordHash, isActive: false }));
+
+            await expect(
+                service.login({ email: 'pencho@test.com', password: 'asdasdasd2!' } as any),
+            ).rejects.toThrow('Invalid email or password.');
+        });
     });
 
     describe('forgotPassword', () => {
