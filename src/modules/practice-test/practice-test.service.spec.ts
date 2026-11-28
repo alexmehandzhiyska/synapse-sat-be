@@ -9,7 +9,7 @@ import { Module as PracticeTestModule } from './entities/module.entity';
 import { Question } from './entities/question.entity';
 import { AnswerChoice } from './entities/answer-choice.entity';
 import { UserAnswer } from '../test-attempt/entities/user-answer.entity';
-import { Difficulty, Domain, QuestionStatusFilter, Section, TestType } from './enums/practice-test.enums';
+import { Difficulty, Domain, ModuleVariant, QuestionStatusFilter, Section, TestType } from './enums/practice-test.enums';
 
 jest.mock('./utils/shuffle', () => ({ shuffle: (items: unknown[]) => items }));
 
@@ -98,14 +98,19 @@ describe('PracticeTestService', () => {
             expect(createdArg.sections).toEqual([{ name: Section.MATH, modules: [{ position: 1 }] }]);
         });
 
-        it('creates a standard test with both sections and two modules each', async () => {
+        it('creates standard test with module 1 and easy and hard module 2 per section', async () => {
             await service.create({ title: 'Standard Test', type: TestType.STANDARD } as any);
 
+            const modules = [
+                { position: 1 },
+                { position: 2, variant: ModuleVariant.EASY },
+                { position: 2, variant: ModuleVariant.HARD },
+            ];
             const createdArg = practiceTestRepository.create!.mock.calls[0][0];
             expect(createdArg.domain).toBeNull();
             expect(createdArg.sections).toEqual([
-                { name: Section.READING_WRITING, modules: [{ position: 1 }, { position: 2 }] },
-                { name: Section.MATH, modules: [{ position: 1 }, { position: 2 }] },
+                { name: Section.READING_WRITING, modules },
+                { name: Section.MATH, modules },
             ]);
         });
     });

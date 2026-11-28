@@ -21,6 +21,7 @@ describe('TestAttemptController', () => {
         | 'getScoreDistribution'
         | 'startOrResume'
         | 'upsertAnswer'
+        | 'updateTimeRemaining'
         | 'advanceModule'
         | 'submit',
         jest.Mock
@@ -34,6 +35,7 @@ describe('TestAttemptController', () => {
             getScoreDistribution: jest.fn().mockResolvedValue('get-score-distribution-result'),
             startOrResume: jest.fn().mockResolvedValue('start-or-resume-result'),
             upsertAnswer: jest.fn().mockResolvedValue(undefined),
+            updateTimeRemaining: jest.fn().mockResolvedValue(undefined),
             advanceModule: jest.fn().mockResolvedValue('advance-module-result'),
             submit: jest.fn().mockResolvedValue('submit-result'),
         };
@@ -101,6 +103,21 @@ describe('TestAttemptController', () => {
 
         it('responds with 204 No Content', () => {
             expect(Reflect.getMetadata(HTTP_CODE_METADATA, TestAttemptController.prototype.upsertAnswer)).toBe(204);
+        });
+    });
+
+    describe('updateTimeRemaining', () => {
+        it('saves time remaining for attempt', async () => {
+            const dto = { secondsRemaining: 120 };
+            await controller.updateTimeRemaining('attempt-1', dto, request);
+
+            expect(testAttemptService.updateTimeRemaining).toHaveBeenCalledWith('attempt-1', dto, 'user-1');
+        });
+
+        it('responds with 204 No Content', () => {
+            expect(
+                Reflect.getMetadata(HTTP_CODE_METADATA, TestAttemptController.prototype.updateTimeRemaining),
+            ).toBe(204);
         });
     });
 

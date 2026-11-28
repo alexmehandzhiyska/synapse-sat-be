@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { PracticeTest } from '../practice-test/entities/practice-test.entity';
-import { Difficulty, Domain, Section, TestType } from '../practice-test/enums/practice-test.enums';
+import { Difficulty, Domain, ModuleVariant, Section, TestType } from '../practice-test/enums/practice-test.enums';
 
 import { TestAttemptService } from './test-attempt.service';
 import { TestAttempt } from './entities/test-attempt.entity';
@@ -44,9 +44,9 @@ const buildQuestion = (id: string, position: number, domain: Domain) => ({
     ],
 });
 
-const buildTest = () => ({
+const buildTest = (type = TestType.CHECK_IN) => ({
     id: 'test-1',
-    type: TestType.STANDARD,
+    type,
     sections: [
         {
             name: Section.READING_WRITING,
@@ -114,6 +114,8 @@ describe('TestAttemptService', () => {
                 userId: 'user-1',
                 testId: 'test-1',
                 currentModuleIndex: 0,
+                moduleSecondsRemaining: 120,
+                moduleRoutes: { [Section.READING_WRITING]: ModuleVariant.HARD },
                 completedAt: null,
                 answers: [{ questionId: 'q1', selectedChoiceId: 'choice-1' }],
             });
@@ -125,6 +127,8 @@ describe('TestAttemptService', () => {
                 testId: 'test-1',
                 status: 'in_progress',
                 currentModuleIndex: 0,
+                moduleSecondsRemaining: 120,
+                moduleRoutes: { [Section.READING_WRITING]: ModuleVariant.HARD },
                 answers: [{ questionId: 'q1', selectedChoiceId: 'choice-1' }],
             });
         });
@@ -155,6 +159,31 @@ describe('TestAttemptService', () => {
             );
             expect(queryBuilder.orIgnore).toHaveBeenCalled();
             expect(result.id).toBe('attempt-1');
+        });
+
+        it('resumes with saved time and progress', async () => {
+            practiceTestRepository.findOne!.mockResolvedValue({ id: 'test-1' });
+            testAttemptRepository.findOneOrFail!.mockResolvedValue({
+                id: 'attempt-1',
+                testId: 'test-1',
+                currentModuleIndex: 2,
+                moduleSecondsRemaining: 120,
+                moduleRoutes: { [Section.READING_WRITING]: ModuleVariant.EASY },
+                completedAt: null,
+                answers: [{ questionId: 'q1', selectedChoiceId: 'q1-correct' }],
+            });
+
+            const result = await service.startOrResume('test-1', 'user-1');
+
+            expect(result).toEqual({
+                id: 'attempt-1',
+                testId: 'test-1',
+                status: 'in_progress',
+                currentModuleIndex: 2,
+                moduleSecondsRemaining: 120,
+                moduleRoutes: { [Section.READING_WRITING]: ModuleVariant.EASY },
+                answers: [{ questionId: 'q1', selectedChoiceId: 'q1-correct' }],
+            });
         });
     });
 
@@ -218,22 +247,115 @@ describe('TestAttemptService', () => {
             await expect(service.advanceModule('attempt-1', 'user-1')).rejects.toBeInstanceOf(NotFoundException);
         });
 
-        it('increments the current module index', async () => {
+        it('increments current module index and resets timer', async () => {
             testAttemptRepository.findOne!.mockResolvedValue({
                 id: 'attempt-1',
                 userId: 'user-1',
                 testId: 'test-1',
                 currentModuleIndex: 1,
+                moduleSecondsRemaining: 120,
+                moduleRoutes: {},
                 completedAt: null,
                 answers: [],
             });
+            practiceTestRepository.findOneOrFail!.mockResolvedValue(buildTest());
 
             const result = await service.advanceModule('attempt-1', 'user-1');
 
             expect(testAttemptRepository.save).toHaveBeenCalledWith(
-                expect.objectContaining({ currentModuleIndex: 2 }),
+                expect.objectContaining({ currentModuleIndex: 2, moduleSecondsRemaining: null }),
             );
             expect(result.currentModuleIndex).toBe(2);
+        });
+
+        it('routes to hard module 2 when module 1 meets threshold', async () => {
+            testAttemptRepository.findOne!.mockResolvedValue({
+                id: 'attempt-1',
+                userId: 'user-1',
+                testId: 'test-1',
+                currentModuleIndex: 0,
+                moduleRoutes: {},
+                completedAt: null,
+                answers: [
+                    { questionId: 'q1', selectedChoiceId: 'q1-correct' },
+                    { questionId: 'q2', selectedChoiceId: 'q2-correct' },
+                ],
+            });
+
+            practiceTestRepository.findOneOrFail!.mockResolvedValue(buildTest(TestType.STANDARD));
+
+            await service.advanceModule('attempt-1', 'user-1');
+
+            expect(testAttemptRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ moduleRoutes: { [Section.READING_WRITING]: ModuleVariant.HARD } }),
+            );
+        });
+
+        it('routes to easy module 2 when module 1 doesn\'t meet threshold', async () => {
+            testAttemptRepository.findOne!.mockResolvedValue({
+                id: 'attempt-1',
+                userId: 'user-1',
+                testId: 'test-1',
+                currentModuleIndex: 0,
+                moduleRoutes: {},
+                completedAt: null,
+                answers: [
+                    { questionId: 'q1', selectedChoiceId: 'q1-correct' },
+                    { questionId: 'q2', selectedChoiceId: 'q2-wrong' },
+                ],
+            });
+
+            practiceTestRepository.findOneOrFail!.mockResolvedValue(buildTest(TestType.STANDARD));
+
+            await service.advanceModule('attempt-1', 'user-1');
+
+            expect(testAttemptRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ moduleRoutes: { [Section.READING_WRITING]: ModuleVariant.EASY } }),
+            );
+        });
+
+        it('does not route non-adaptive test', async () => {
+            testAttemptRepository.findOne!.mockResolvedValue({
+                id: 'attempt-1',
+                userId: 'user-1',
+                testId: 'test-1',
+                currentModuleIndex: 0,
+                moduleRoutes: {},
+                completedAt: null,
+                answers: [],
+            });
+            
+            practiceTestRepository.findOneOrFail!.mockResolvedValue(buildTest(TestType.CUSTOM));
+
+            await service.advanceModule('attempt-1', 'user-1');
+
+            expect(testAttemptRepository.save).toHaveBeenCalledWith(expect.objectContaining({ moduleRoutes: {} }));
+        });
+    });
+
+    describe('updateTimeRemaining', () => {
+        it('throws NotFoundException when attempt is not owned', async () => {
+            testAttemptRepository.findOne!.mockResolvedValue({ id: 'attempt-1', userId: 'other-user', answers: [] });
+
+            await expect(
+                service.updateTimeRemaining('attempt-1', { secondsRemaining: 120 }, 'user-1'),
+            ).rejects.toBeInstanceOf(NotFoundException);
+            expect(testAttemptRepository.save).not.toHaveBeenCalled();
+        });
+
+        it('saves seconds remaining', async () => {
+            testAttemptRepository.findOne!.mockResolvedValue({
+                id: 'attempt-1',
+                userId: 'user-1',
+                moduleSecondsRemaining: null,
+                answers: [],
+            });
+
+            await service.updateTimeRemaining('attempt-1', { secondsRemaining: 120 }, 'user-1');
+
+            expect(testAttemptRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ id: 'attempt-1', moduleSecondsRemaining: 120 }),
+            );
         });
     });
 
@@ -290,6 +412,7 @@ describe('TestAttemptService', () => {
                 id: 'attempt-1',
                 userId: 'user-1',
                 testId: 'test-1',
+                moduleRoutes: {},
                 answers: [
                     { questionId: 'q1', selectedChoiceId: 'q1-correct' },
                     { questionId: 'q2', selectedChoiceId: 'q2-wrong' },
@@ -322,6 +445,7 @@ describe('TestAttemptService', () => {
                 id: 'attempt-1',
                 userId: 'user-1',
                 testId: 'test-1',
+                moduleRoutes: {},
                 answers: [
                     { questionId: 'q1', selectedChoiceId: 'q1-correct' },
                     { questionId: 'q2', selectedChoiceId: 'q2-correct' },
@@ -350,6 +474,7 @@ describe('TestAttemptService', () => {
             testAttemptRepository.findOne!.mockResolvedValue({
                 id: 'attempt-1',
                 testId: 'test-1',
+                moduleRoutes: {},
                 answers: [
                     { questionId: 'q1', selectedChoiceId: 'q1-correct' },
                     { questionId: 'q2', selectedChoiceId: 'q2-wrong' },
@@ -388,6 +513,7 @@ describe('TestAttemptService', () => {
                 testId: 'test-1',
                 completedAt: new Date('2024-01-01T00:00:00.000Z'),
                 test: { title: 'Standard Test' },
+                moduleRoutes: {},
                 answers: [
                     { questionId: 'q1', selectedChoiceId: 'q1-correct' },
                     { questionId: 'q2', selectedChoiceId: 'q2-correct' },

@@ -1,5 +1,5 @@
 import { PracticeTest } from '../../practice-test/entities/practice-test.entity';
-import { Difficulty, Domain, Section, TestType } from '../../practice-test/enums/practice-test.enums';
+import { Difficulty, Domain, ModuleVariant, Section, TestType } from '../../practice-test/enums/practice-test.enums';
 
 import { buildScoreReport } from './score-test';
 
@@ -13,6 +13,7 @@ interface QuestionFixture {
     id: string;
     position: number;
     domain: Domain;
+    difficulty?: Difficulty;
     choices?: ChoiceFixture[];
 }
 
@@ -23,11 +24,11 @@ const buildChoices = (questionId: string): ChoiceFixture[] => [
     { id: `${questionId}-d`, label: 'D', isCorrect: false },
 ];
 
-const buildQuestion = ({ id, position, domain, choices }: QuestionFixture) => ({
+const buildQuestion = ({ id, position, domain, difficulty = Difficulty.MEDIUM, choices }: QuestionFixture) => ({
     id,
     position,
     domain,
-    difficulty: Difficulty.MEDIUM,
+    difficulty,
     passage: null,
     prompt: `Prompt for ${id}`,
     answerChoices: (choices ?? buildChoices(id)).map((choice) => ({
@@ -36,8 +37,9 @@ const buildQuestion = ({ id, position, domain, choices }: QuestionFixture) => ({
     })),
 });
 
-const buildModule = (position: number, questions: QuestionFixture[]) => ({
+const buildModule = (position: number, questions: QuestionFixture[], variant: ModuleVariant | null = null) => ({
     position,
+    variant,
     questions: questions.map(buildQuestion),
 });
 
@@ -45,7 +47,7 @@ const buildSection = (name: Section, modules: ReturnType<typeof buildModule>[]) 
 
 const buildTest = (
     sections: ReturnType<typeof buildSection>[],
-    type: TestType = TestType.STANDARD,
+    type: TestType = TestType.CHECK_IN,
 ): PracticeTest => ({ type, sections }) as unknown as PracticeTest;
 
 const correct = (questionId: string) => ({ questionId, selectedChoiceId: `${questionId}-a` });
@@ -71,25 +73,25 @@ describe('buildScoreReport', () => {
         const test = buildSingleSectionTest(3);
 
         it('marks a question as correct when the selected choice is the correct one', () => {
-            const report = buildScoreReport('attempt-1', test, [correct('q1')]);
+            const report = buildScoreReport('attempt-1', test, [correct('q1')], {});
 
             expect(report.sections[0].modules[0].questions[0].status).toBe('correct');
         });
 
         it('marks a question as incorrect when the selected choice is not the correct one', () => {
-            const report = buildScoreReport('attempt-1', test, [incorrect('q1')]);
+            const report = buildScoreReport('attempt-1', test, [incorrect('q1')], {});
 
             expect(report.sections[0].modules[0].questions[0].status).toBe('incorrect');
         });
 
         it('marks a question as omitted when there is no answer for it', () => {
-            const report = buildScoreReport('attempt-1', test, []);
+            const report = buildScoreReport('attempt-1', test, [], {});
 
             expect(report.sections[0].modules[0].questions[0].status).toBe('omitted');
         });
 
         it('marks a question as omitted when its answer has a null selected choice', () => {
-            const report = buildScoreReport('attempt-1', test, [{ questionId: 'q1', selectedChoiceId: null }]);
+            const report = buildScoreReport('attempt-1', test, [{ questionId: 'q1', selectedChoiceId: null }], {});
 
             expect(report.sections[0].modules[0].questions[0].status).toBe('omitted');
             expect(report.sections[0].modules[0].questions[0].selectedChoiceId).toBeNull();
@@ -112,7 +114,7 @@ describe('buildScoreReport', () => {
                 ]),
             ]);
 
-            const report = buildScoreReport('attempt-1', noCorrectChoice, [correct('q1')]);
+            const report = buildScoreReport('attempt-1', noCorrectChoice, [correct('q1')], {});
 
             expect(report.sections[0].modules[0].questions[0].status).toBe('incorrect');
         });
@@ -120,7 +122,7 @@ describe('buildScoreReport', () => {
 
     describe('question result', () => {
         it('includes the question fields and the selected choice id', () => {
-            const report = buildScoreReport('attempt-1', buildSingleSectionTest(1), [incorrect('q1')]);
+            const report = buildScoreReport('attempt-1', buildSingleSectionTest(1), [incorrect('q1')], {});
 
             expect(report.sections[0].modules[0].questions[0]).toEqual({
                 id: 'q1',
@@ -152,7 +154,7 @@ describe('buildScoreReport', () => {
                 ]),
             ]);
 
-            const report = buildScoreReport('attempt-1', test, []);
+            const report = buildScoreReport('attempt-1', test, [], {});
 
             expect(report.sections[0].modules[0].questions[0].answerChoices.map((choice) => choice.label)).toEqual([
                 'A',
@@ -173,7 +175,7 @@ describe('buildScoreReport', () => {
                 correct('q1'),
                 correct('q2'),
                 incorrect('q3'),
-            ]);
+            ], {});
 
             expect(report.sections[0].modules[0]).toMatchObject({
                 position: 1,
@@ -195,7 +197,7 @@ describe('buildScoreReport', () => {
                 ]),
             ]);
 
-            const report = buildScoreReport('attempt-1', test, []);
+            const report = buildScoreReport('attempt-1', test, [], {});
 
             expect(report.sections[0].modules[0].questions.map((question) => question.id)).toEqual([
                 'q1',
@@ -217,7 +219,7 @@ describe('buildScoreReport', () => {
                 ]),
             ]);
 
-            const report = buildScoreReport('attempt-1', test, [correct('q1'), incorrect('q2'), correct('q3')]);
+            const report = buildScoreReport('attempt-1', test, [correct('q1'), incorrect('q2'), correct('q3')], {});
 
             expect(report.sections[0].modules.map((module) => module.position)).toEqual([1, 2]);
             expect(report.sections[0]).toMatchObject({ name: Section.MATH, raw: 2, total: 3 });
@@ -237,7 +239,7 @@ describe('buildScoreReport', () => {
                 ]),
             ]);
 
-            const report = buildScoreReport('attempt-1', test, [correct('q1'), correct('q3'), incorrect('q4')]);
+            const report = buildScoreReport('attempt-1', test, [correct('q1'), correct('q3'), incorrect('q4')], {});
 
             expect(report.sections[0].domains).toEqual([
                 { domain: Domain.ALGEBRA, correct: 2, total: 3 },
@@ -251,30 +253,30 @@ describe('buildScoreReport', () => {
             Array.from({ length: count }, (_, index) => correct(`q${index + 1}`));
 
         it('returns 200 when no questions are answered correctly', () => {
-            const report = buildScoreReport('attempt-1', buildSingleSectionTest(4), []);
+            const report = buildScoreReport('attempt-1', buildSingleSectionTest(4), [], {});
 
             expect(report.sections[0].scaled).toBe(200);
         });
 
         it('returns 800 when every question is answered correctly', () => {
-            const report = buildScoreReport('attempt-1', buildSingleSectionTest(4), answerFirst(4));
+            const report = buildScoreReport('attempt-1', buildSingleSectionTest(4), answerFirst(4), {});
 
             expect(report.sections[0].scaled).toBe(800);
         });
 
         it('maps the raw score linearly onto the 200-800 scale', () => {
-            const report = buildScoreReport('attempt-1', buildSingleSectionTest(4), answerFirst(2));
+            const report = buildScoreReport('attempt-1', buildSingleSectionTest(4), answerFirst(2), {});
 
             expect(report.sections[0].scaled).toBe(500);
         });
 
         it('rounds the scaled score to the nearest 10', () => {
             // 200 + (1 / 7) * 600 = 285.71 -> 290
-            const roundedUp = buildScoreReport('attempt-1', buildSingleSectionTest(7), answerFirst(1));
+            const roundedUp = buildScoreReport('attempt-1', buildSingleSectionTest(7), answerFirst(1), {});
             // 200 + (1 / 9) * 600 = 266.67 -> 270
-            const roundedFromNine = buildScoreReport('attempt-1', buildSingleSectionTest(9), answerFirst(1));
+            const roundedFromNine = buildScoreReport('attempt-1', buildSingleSectionTest(9), answerFirst(1), {});
             // 200 + (1 / 11) * 600 = 254.55 -> 250
-            const roundedDown = buildScoreReport('attempt-1', buildSingleSectionTest(11), answerFirst(1));
+            const roundedDown = buildScoreReport('attempt-1', buildSingleSectionTest(11), answerFirst(1), {});
 
             expect(roundedUp.sections[0].scaled).toBe(290);
             expect(roundedFromNine.sections[0].scaled).toBe(270);
@@ -286,6 +288,7 @@ describe('buildScoreReport', () => {
                 'attempt-1',
                 buildTest([buildSection(Section.MATH, [buildModule(1, [])])]),
                 [],
+                {},
             );
 
             expect(report.sections[0]).toMatchObject({ raw: 0, total: 0, scaled: 200, domains: [] });
@@ -308,52 +311,119 @@ describe('buildScoreReport', () => {
             );
 
         it('orders sections reading & writing first, then math', () => {
-            const report = buildScoreReport('attempt-1', fullTest(), []);
+            const report = buildScoreReport('attempt-1', fullTest(), [], {});
 
             expect(report.sections.map((section) => section.name)).toEqual([Section.READING_WRITING, Section.MATH]);
         });
 
         it('skips sections the test does not have', () => {
-            const report = buildScoreReport('attempt-1', buildSingleSectionTest(2), []);
+            const report = buildScoreReport('attempt-1', buildSingleSectionTest(2), [], {});
 
             expect(report.sections.map((section) => section.name)).toEqual([Section.READING_WRITING]);
         });
 
         it('sums raw and scaled scores across sections', () => {
-            const report = buildScoreReport('attempt-1', fullTest(), [correct('m1'), correct('rw1')]);
+            const report = buildScoreReport('attempt-1', fullTest(), [correct('m1'), correct('rw1')], {});
 
             // Reading & writing: 1 / 2 -> 500, math: 1 / 1 -> 800
             expect(report).toMatchObject({ attemptId: 'attempt-1', totalRaw: 2, totalScaled: 1300 });
         });
 
         it('returns empty totals for a test without sections', () => {
-            const report = buildScoreReport('attempt-1', buildTest([]), []);
+            const report = buildScoreReport('attempt-1', buildTest([]), [], {});
 
             expect(report).toMatchObject({ totalRaw: 0, totalScaled: 0, sections: [] });
         });
 
         it('flags a diagnostic test', () => {
-            const report = buildScoreReport('attempt-1', fullTest(TestType.DIAGNOSTIC), []);
+            const report = buildScoreReport('attempt-1', fullTest(TestType.DIAGNOSTIC), [], {});
 
             expect(report).toMatchObject({ isDiagnostic: true, isCustom: false });
         });
 
         it('flags a custom test', () => {
-            const report = buildScoreReport('attempt-1', fullTest(TestType.CUSTOM), []);
+            const report = buildScoreReport('attempt-1', fullTest(TestType.CUSTOM), [], {});
 
             expect(report).toMatchObject({ isDiagnostic: false, isCustom: true });
         });
 
         it('does not flag a standard test', () => {
-            const report = buildScoreReport('attempt-1', fullTest(TestType.STANDARD), []);
+            const report = buildScoreReport('attempt-1', fullTest(TestType.STANDARD), [], {});
 
             expect(report).toMatchObject({ isDiagnostic: false, isCustom: false });
         });
 
         it('ignores answers for questions that are not in the test', () => {
-            const report = buildScoreReport('attempt-1', fullTest(), [correct('unknown-question')]);
+            const report = buildScoreReport('attempt-1', fullTest(), [correct('unknown-question')], {});
 
             expect(report.totalRaw).toBe(0);
+        });
+    });
+
+    describe('adaptive test', () => {
+        const adaptiveTest = (type = TestType.STANDARD) =>
+            buildTest(
+                [
+                    buildSection(Section.MATH, [
+                        buildModule(1, [{ id: 'q1', position: 1, domain: Domain.ALGEBRA, difficulty: Difficulty.MEDIUM }]),
+                        buildModule(
+                            2,
+                            [{ id: 'e1', position: 1, domain: Domain.ALGEBRA, difficulty: Difficulty.EASY }],
+                            ModuleVariant.EASY,
+                        ),
+                        buildModule(
+                            2,
+                            [{ id: 'h1', position: 1, domain: Domain.ALGEBRA, difficulty: Difficulty.HARD }],
+                            ModuleVariant.HARD,
+                        ),
+                    ]),
+                ],
+                type,
+            );
+
+        it('scores module 1 and routed module 2 only', () => {
+            const report = buildScoreReport('attempt-1', adaptiveTest(), [], { [Section.MATH]: ModuleVariant.EASY });
+
+            expect(report.sections[0].modules.map((module) => module.variant)).toEqual([null, ModuleVariant.EASY]);
+            expect(report.sections[0].total).toBe(2);
+        });
+
+        it('defaults to hard module 2 without route', () => {
+            const report = buildScoreReport('attempt-1', adaptiveTest(), [], {});
+
+            expect(report.sections[0].modules.map((module) => module.variant)).toEqual([null, ModuleVariant.HARD]);
+        });
+
+        it('routes diagnostic test', () => {
+            const report = buildScoreReport('attempt-1', adaptiveTest(TestType.DIAGNOSTIC), [], {
+                [Section.MATH]: ModuleVariant.EASY,
+            });
+
+            expect(report.sections[0].modules.map((module) => module.variant)).toEqual([null, ModuleVariant.EASY]);
+        });
+
+        it('scores every module of non-adaptive test', () => {
+            const report = buildScoreReport('attempt-1', adaptiveTest(TestType.CUSTOM), [], {
+                [Section.MATH]: ModuleVariant.EASY,
+            });
+
+            expect(report.sections[0].total).toBe(3);
+        });
+
+        it('reaches 800 on hard route with every answer correct', () => {
+            const report = buildScoreReport('attempt-1', adaptiveTest(), [correct('q1'), correct('h1')], {
+                [Section.MATH]: ModuleVariant.HARD,
+            });
+
+            expect(report.sections[0].scaled).toBe(800);
+        });
+
+        it('caps easy route below 800 with every answer correct', () => {
+            const report = buildScoreReport('attempt-1', adaptiveTest(), [correct('q1'), correct('e1')], {
+                [Section.MATH]: ModuleVariant.EASY,
+            });
+
+            expect(report.sections[0]).toMatchObject({ raw: 2, scaled: 560 });
         });
     });
 });
